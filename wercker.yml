@@ -374,13 +374,24 @@ quality:
     version: 3.5.2
 
 promote-image:
+  docker: true
   steps:
-  - internal/docker-push:
-    image-name: $REPO_REPOSITORY:$IMAGE_TAG_OPERATOR
-    username: $DOCKER_USERNAME
-    password: $DOCKER_PASSWORD
-    repository: oracle/weblogic-kubernetes-operator
-    tag: $IMAGE_TAG_OPERATOR
+  - script:
+    name: Install docker
+    code: apk --no-cache add docker
+  - script:
+    name: Docker login and pull
+    code: |
+      docker login --username $REPO_USERNAME --password $REPO_PASSWORD $REPO_REGISTRY
+      docker pull $REPO_REPOSITORY:$IMAGE_TAG_OPERATOR
+  - script:
+    name: Docker tag
+    code: docker tag $REPO_REPOSITORY:$IMAGE_TAG_OPERATOR oracle/weblogic-kubernetes-operator:$IMAGE_TAG_OPERATOR
+  - script:
+    name: Docker login and push
+    code: |
+      docker login --username $DOCKER_USERNAME --password $DOCKER_PASSWORD
+      docker push oracle/weblogic-kubernetes-operator:$IMAGE_TAG_OPERATOR
 
 dev:
   steps:
