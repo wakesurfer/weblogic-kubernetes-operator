@@ -77,6 +77,7 @@ import io.kubernetes.client.models.V1Service;
 import io.kubernetes.client.models.V1ServiceAccount;
 import io.kubernetes.client.models.V1beta1ClusterRole;
 import io.kubernetes.client.models.V1beta1ClusterRoleBinding;
+import oracle.kubernetes.operator.helm.HelmDomainYamlFactory;
 import oracle.kubernetes.operator.helpers.LegalNames;
 import oracle.kubernetes.operator.utils.DomainValues;
 import oracle.kubernetes.operator.utils.DomainYamlFactory;
@@ -95,6 +96,7 @@ import oracle.kubernetes.operator.utils.ParsedWeblogicDomainPersistentVolumeClai
 import oracle.kubernetes.operator.utils.ParsedWeblogicDomainPersistentVolumeYaml;
 import oracle.kubernetes.weblogic.domain.DomainConfigurator;
 import oracle.kubernetes.weblogic.domain.v1.Domain;
+import org.junit.Assume;
 import org.junit.Test;
 
 /**
@@ -457,6 +459,7 @@ public abstract class CreateDomainGeneratedFilesBaseTest {
 
   @Test
   public void generatesCorrect_loadBalancerServiceAccount() throws Exception {
+    Assume.assumeFalse(factory instanceof HelmDomainYamlFactory);
     assertThat(getActualTraefikServiceAccount(), yamlEqualTo(getExpectedTraefikServiceAccount()));
   }
 
@@ -508,6 +511,7 @@ public abstract class CreateDomainGeneratedFilesBaseTest {
 
   @Test
   public void generatesCorrect_loadBalancerDeployment() throws Exception {
+    Assume.assumeFalse(factory instanceof HelmDomainYamlFactory);
     assertThat(getActualTraefikDeployment(), yamlEqualTo(getExpectedTraefikDeployment()));
   }
 
@@ -761,6 +765,7 @@ public abstract class CreateDomainGeneratedFilesBaseTest {
 
   @Test
   public void generatesCorrect_loadBalancerConfigMap() throws Exception {
+    Assume.assumeFalse(factory instanceof HelmDomainYamlFactory);
     // The config map contains a 'traefik.toml' property that has a lot of text
     // that we don't want to duplicate in the test.  However, part of the text
     // is computed from the inputs, so we want to validate that part of the info.
@@ -811,6 +816,7 @@ public abstract class CreateDomainGeneratedFilesBaseTest {
 
   @Test
   public void generatesCorrect_loadBalancerService() throws Exception {
+    Assume.assumeFalse(factory instanceof HelmDomainYamlFactory);
     assertThat(getActualTraefikService(), yamlEqualTo(getExpectedTraefikService()));
   }
 
@@ -892,6 +898,7 @@ public abstract class CreateDomainGeneratedFilesBaseTest {
 
   @Test
   public void generatesCorrect_loadBalancerDashboardService() throws Exception {
+    Assume.assumeFalse(factory instanceof HelmDomainYamlFactory);
     assertThat(
         getActualTraefikDashboardService(), yamlEqualTo(getExpectedTraefikDashboardService()));
   }
@@ -925,6 +932,7 @@ public abstract class CreateDomainGeneratedFilesBaseTest {
 
   @Test
   public void generatesCorrect_loadBalancerClusterRole() throws Exception {
+    Assume.assumeFalse(factory instanceof HelmDomainYamlFactory);
     assertThat(getActualTraefikClusterRole(), yamlEqualTo(getExpectedTraefikClusterRole()));
   }
 
@@ -1070,6 +1078,7 @@ public abstract class CreateDomainGeneratedFilesBaseTest {
 
   @Test
   public void generatesCorrect_loadBalancerClusterRoleBinding() throws Exception {
+    Assume.assumeFalse(factory instanceof HelmDomainYamlFactory);
     assertThat(
         getActualTraefikDashboardClusterRoleBinding(),
         yamlEqualTo(getExpectedTraefikDashboardClusterRoleBinding()));
