@@ -37,6 +37,8 @@ admin_name=${ADMIN_NAME?}
 admin_port=${ADMIN_PORT?}
 domain_home=${DOMAIN_HOME?}
 log_home=${LOG_HOME?}
+redirect_logs=${REDIRECT_LOGS:-false}
+server_out_in_pod_log=${SERVER_OUT_IN_POD_LOG?}
 nodemgr_home=${NODEMGR_HOME?}
 service_name=${SERVICE_NAME?}
 admin_hostname=${AS_SERVICE_NAME?}
@@ -54,6 +56,8 @@ for varname in domain_uid \
                server_name \
                service_name \
                log_home \
+               redirect_logs \
+               server_out_in_pod_log \
                nodemgr_home \
                user_mem_args \
                java_options \
@@ -67,8 +71,21 @@ trace ""
 wlDataDir=${domain_home}/servers/${server_name}/data/nodemanager
 wlStateFile=${wlDataDir}/${server_name}.state
 wlStartPropFile=${wlDataDir}/startup.properties
-nmLogFile="${log_home}/nodemanager-${server_name}.log"
 nmPropFile=${nodemgr_home}/nodemanager.properties
+
+
+if [ "${redirect_logs}" == "true" ] ; then
+  # redirect_logs is true means log_home is explicitly set, and 
+  # log files should be redirected to the specified log_home
+  trace " logHome is specified and log files will be written to ${log_home} "
+  serverOutFile="${log_home}/${server_name}.out"
+else
+  # default server log file location
+  trace " logHome is not specified and log files will be written to the default locations "
+  serverOutFile="${domain_home}/servers/${server_name}/logs/${server_name}.out"
+fi
+
+nmLogFile="${log_home}/nodemanager-${server_name}.log"
 
 # Check for stale state file and remove if found
 # (The liveness probe checks this file)
@@ -121,7 +138,8 @@ echo "NumberOfFilesLimited=true" >> ${wlStartPropFile}
 echo "FileTimeSpan=24" >> ${wlStartPropFile}
 echo "NMHostName=${service_name}" >> ${wlStartPropFile}
 trace "Update JVM arguments"
-echo "Arguments=${user_mem_args} -XX\:+UnlockExperimentalVMOptions -XX\:+UseCGroupMemoryLimitForHeap ${java_options}" >> ${wlStartPropFile}
+# Use weblogic.Stdout to tell node manager to send server .out file to the configured location
+echo "Arguments=${user_mem_args} -XX\:+UnlockExperimentalVMOptions -XX\:+UseCGroupMemoryLimitForHeap -Dweblogic.Stdout=${serverOutFile} ${java_options}" >> ${wlStartPropFile}
 
 # Start the nodemanager and wait until it's ready
 
@@ -144,6 +162,11 @@ trace "Finished waiting for the nodemanager to start"
 trace "Start the WebLogic Server via the nodemanager"
 wlst.sh -skipWLSModuleScanning /weblogic-operator/scripts/start-server.py
 
-trace "Wait indefinitely so that the Kubernetes pod does not exit and try to restart"
-while true; do sleep 60; done
+if [ "${server_out_in_pod_log}" == 'true' ] ; then
+  trace "Showing the server out file from ${serverOutFile}"
+  tail -F -n +0 ${serverOutFile}
+else
+  trace "Wait indefinitely so that the Kubernetes pod does not exit and try to restart"
+  while true; do sleep 60; done
+fi
 

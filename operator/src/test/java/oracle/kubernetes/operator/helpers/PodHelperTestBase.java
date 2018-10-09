@@ -86,6 +86,7 @@ public abstract class PodHelperTestBase {
   private static final String UID = "uid1";
   static final String ADMIN_SERVER = "ADMIN_SERVER";
   static final Integer ADMIN_PORT = 7001;
+  static final String INCLUDE_SERVER_OUT_IN_POD_LOG = "true";
 
   private static final String ADMIN_SECRET_NAME = "adminSecretName";
   private static final String STORAGE_VOLUME_NAME = "weblogic-domain-storage-volume";
@@ -181,6 +182,7 @@ public abstract class PodHelperTestBase {
         .withAsName(ADMIN_SERVER)
         .withAsPort(ADMIN_PORT)
         .withAdminSecret(new V1SecretReference().name(ADMIN_SECRET_NAME))
+        .withIncludeServerOutInPodLog(INCLUDE_SERVER_OUT_IN_POD_LOG)
         .withImage(LATEST_IMAGE);
   }
 
@@ -566,6 +568,7 @@ public abstract class PodHelperTestBase {
         .addEnvItem(envItem("DOMAIN_UID", UID))
         .addEnvItem(envItem("NODEMGR_HOME", NODEMGR_HOME))
         .addEnvItem(envItem("LOG_HOME", LOG_HOME))
+        .addEnvItem(envItem("SERVER_OUT_IN_POD_LOG", INCLUDE_SERVER_OUT_IN_POD_LOG))
         .addEnvItem(envItem("SERVICE_NAME", LegalNames.toServerServiceName(UID, getServerName())))
         .addEnvItem(envItem("AS_SERVICE_NAME", LegalNames.toServerServiceName(UID, ADMIN_SERVER)))
         .livenessProbe(createLivenessProbe())

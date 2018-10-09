@@ -73,6 +73,19 @@ public class DomainSpec extends BaseConfiguration {
   private Integer asPort;
 
   /**
+   * The in-pod name of the directory to store the domain, node manager, server logs, and server
+   * .out files in.
+   */
+  @SerializedName("logHome")
+  @Expose
+  private String logHome;
+
+  /** Whether to include the server .out file to the pod's stdout. Default is true. */
+  @SerializedName("includeServerOutInPodLog")
+  @Expose
+  private String includeServerOutInPodLog;
+
+  /**
    * List of specific T3 channels to export. Named T3 Channels will be exposed using NodePort
    * Services. The internal and external ports must match; therefore, it is required that the
    * channel's port in the WebLogic configuration be a legal and unique value in the Kubernetes
@@ -371,6 +384,65 @@ public class DomainSpec extends BaseConfiguration {
   }
 
   /**
+   * Log Home
+   *
+   * @return The in-pod name of the directory to store the domain, node manager, server logs, and
+   *     server .out files in.
+   */
+  public String getLogHome() {
+    return logHome;
+  }
+
+  /**
+   * Log Home
+   *
+   * @param logHome
+   */
+  public void setLogHome(String logHome) {
+    this.logHome = logHome;
+  }
+
+  /**
+   * Log Home
+   *
+   * @param logHome
+   * @return this
+   */
+  public DomainSpec withLogHome(String logHome) {
+    this.logHome = logHome;
+    return this;
+  }
+
+  /**
+   * Whether to include server .out to the pod's stdout
+   *
+   * @return whether server .out should be included in pod's stdout.
+   */
+  public String getIncludeServerOutInPodLog() {
+    return includeServerOutInPodLog;
+  }
+
+  /**
+   * Whether to include server .out to the pod's stdout
+   *
+   * @param includeServerOutInPodLog Whether to include server .out to the pod's stdout
+   */
+  public void setIncludeServerOutInPodLog(String includeServerOutInPodLog) {
+    this.includeServerOutInPodLog = includeServerOutInPodLog;
+  }
+
+  /**
+   * Whether to include server .out to the pod's stdout
+   *
+   * @param includeServerOutInPodLog Whether to include server .out to the pod's stdout
+   * @return this
+   */
+  public DomainSpec withIncludeServerOutInPodLog(String includeServerOutInPodLog) {
+    this.includeServerOutInPodLog = includeServerOutInPodLog;
+    return this;
+  }
+
+  /**
    * List of specific T3 channels to export. Named T3 Channels will be exposed using NodePort
    * Services. The internal and external ports must match; therefore, it is required that the
    * channel's port in the WebLogic configuration be a legal and unique value in the Kubernetes
@@ -612,6 +684,8 @@ public class DomainSpec extends BaseConfiguration {
         .append("serverStartup", serverStartup)
         .append("clusterStartup", clusterStartup)
         .append("replicas", replicas)
+        .append("logHome", logHome)
+        .append("includeServerOutInPodLog", includeServerOutInPodLog)
         .toString();
   }
 
@@ -629,6 +703,8 @@ public class DomainSpec extends BaseConfiguration {
         .append(exportT3Channels)
         .append(serverStartup)
         .append(adminSecret)
+        .append(logHome)
+        .append(includeServerOutInPodLog)
         .toHashCode();
   }
 
@@ -650,6 +726,8 @@ public class DomainSpec extends BaseConfiguration {
         .append(exportT3Channels, rhs.exportT3Channels)
         .append(serverStartup, rhs.serverStartup)
         .append(adminSecret, rhs.adminSecret)
+        .append(logHome, rhs.logHome)
+        .append(includeServerOutInPodLog, rhs.includeServerOutInPodLog)
         .isEquals();
   }
 

@@ -18,6 +18,7 @@ class DomainPresenceControl {
     normalizeImagePullPolicy(spec);
     normalizeExportT3Channels(spec);
     normalizeStartupControl(spec);
+    normalizeIncludeServerOutInPodLog(spec);
   }
 
   private static void normalizeImage(DomainSpec spec) {
@@ -40,6 +41,12 @@ class DomainPresenceControl {
   private static void normalizeStartupControl(DomainSpec spec) {
     if (isNotDefined(spec.getStartupControl()))
       spec.setStartupControl(StartupControlConstants.AUTO_STARTUPCONTROL);
+  }
+
+  private static void normalizeIncludeServerOutInPodLog(DomainSpec spec) {
+    if (isNotDefined(spec.getIncludeServerOutInPodLog())) {
+      spec.setIncludeServerOutInPodLog(KubernetesConstants.DEFAULT_INCLUDE_SERVER_OUT_IN_POD_LOG);
+    }
   }
 
   private static boolean isNotDefined(String value) {

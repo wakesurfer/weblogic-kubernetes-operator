@@ -64,7 +64,7 @@ public abstract class PodStepContext {
   private static final String SCRIPTS_MOUNTS_PATH = "/weblogic-operator/scripts";
   private static final String STORAGE_MOUNT_PATH = "/shared";
   private static final String NODEMGR_HOME = "/u01/nodemanager";
-  private static final String LOG_HOME = "/shared/logs";
+  private static final String DEFAULT_LOG_HOME = "/shared/logs";
   private static final int FAILURE_THRESHOLD = 1;
 
   @SuppressWarnings("OctalInteger")
@@ -166,6 +166,14 @@ public abstract class PodStepContext {
 
   Integer getAsPort() {
     return getDomain().getAsPort();
+  }
+
+  String getLogHome() {
+    return getDomain().getLogHome();
+  }
+
+  String getIncludeServerOutInPodLog() {
+    return getDomain().getIncludeServerOutInPodLog();
   }
 
   abstract Integer getPort();
@@ -631,7 +639,15 @@ public abstract class PodStepContext {
     addEnvVar(vars, "SERVER_NAME", getServerName());
     addEnvVar(vars, "DOMAIN_UID", getDomainUID());
     addEnvVar(vars, "NODEMGR_HOME", NODEMGR_HOME);
-    addEnvVar(vars, "LOG_HOME", LOG_HOME);
+    String logHome = getLogHome();
+    if (logHome == null || "".equals(logHome.trim())) {
+      // logHome not specified, use default value
+      addEnvVar(vars, "LOG_HOME", DEFAULT_LOG_HOME);
+    } else {
+      addEnvVar(vars, "LOG_HOME", logHome);
+      addEnvVar(vars, "REDIRECT_LOGS", "true");
+    }
+    addEnvVar(vars, "SERVER_OUT_IN_POD_LOG", getIncludeServerOutInPodLog());
     addEnvVar(
         vars, "SERVICE_NAME", LegalNames.toServerServiceName(getDomainUID(), getServerName()));
     addEnvVar(vars, "AS_SERVICE_NAME", LegalNames.toServerServiceName(getDomainUID(), getAsName()));

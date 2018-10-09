@@ -215,7 +215,8 @@ function initialize {
     t3PublicAddress \
     version \
     persistentVolumeClaimName \
-    podDomainRootDir
+    podDomainRootDir \
+    includeServerOutInPodLog 
 
   validateIntegerInputParamsSpecified \
     adminPort \
@@ -228,7 +229,8 @@ function initialize {
   validateBooleanInputParamsSpecified \
     productionModeEnabled \
     exposeAdminT3Channel \
-    exposeAdminNodePort
+    exposeAdminNodePort \
+    includeServerOutInPodLog
 
   export requiredInputsVersion="create-weblogic-sample-domain-inputs-v1"
   validateVersion 
@@ -277,6 +279,13 @@ function createYamlFiles {
   # Must escape the ':' value in weblogicImage for sed to properly parse and replace
   weblogicImage=$(echo ${weblogicImage} | sed -e "s/\:/\\\:/g")
 
+  # If logHome is not specified, defaults DOMAIN_LOGS_DIR to ${podDomainRootDir}/logs
+  if [ -z "${logHome}" ]; then
+    domainLogsDir="${podDomainRootDir}/logs"
+  else
+    domainLogsDir="${logHome}"
+  fi
+
   # Generate the yaml to create the kubernetes job that will create the weblogic domain
   echo Generating ${createJobOutput}
 
@@ -302,6 +311,9 @@ function createYamlFiles {
   sed -i -e "s:%CLUSTER_TYPE%:${clusterType}:g" ${createJobOutput}
   sed -i -e "s:%DOMAIN_PVC_NAME%:${persistentVolumeClaimName}:g" ${createJobOutput}
   sed -i -e "s:%DOMAIN_ROOT_DIR%:${podDomainRootDir}:g" ${createJobOutput}
+  sed -i -e "s:%DOMAIN_LOGS_DIR%:${domainLogsDir}:g" ${createJobOutput}
+
+cat ${createJobOutput}
 
   # Generate the yaml to create the kubernetes job that will delete the weblogic domain_home folder
   echo Generating ${deleteJobOutput}
@@ -348,6 +360,10 @@ function createYamlFiles {
   sed -i -e "s:%ADMIN_NODE_PORT%:${adminNodePort}:g" ${dcrOutput}
   sed -i -e "s:%JAVA_OPTIONS%:${javaOptions}:g" ${dcrOutput}
   sed -i -e "s:%STARTUP_CONTROL%:${startupControl}:g" ${dcrOutput}
+  sed -i -e "s:%LOG_HOME%:${logHome}:g" ${dcrOutput}
+  sed -i -e "s:%INCLUDE_SERVER_OUT_IN_POD_LOG%:${includeServerOutInPodLog}:g" ${dcrOutput}
+
+cat ${dcrOutput}
 
   # Remove any "...yaml-e" files left over from running sed
   rm -f ${domainOutputDir}/*.yaml-e

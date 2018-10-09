@@ -279,6 +279,14 @@ public class Domain {
     return spec.getDomainName();
   }
 
+  public String getLogHome() {
+    return spec.getLogHome();
+  }
+
+  public String getIncludeServerOutInPodLog() {
+    return spec.getIncludeServerOutInPodLog();
+  }
+
   @Override
   public String toString() {
     return new ToStringBuilder(this)
