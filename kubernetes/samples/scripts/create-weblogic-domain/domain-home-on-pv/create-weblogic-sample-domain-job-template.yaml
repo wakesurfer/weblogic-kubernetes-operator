@@ -224,6 +224,10 @@ data:
       cmo.setListenPort(server_port)
       cmo.setListenAddress('%DOMAIN_UID%-%MANAGED_SERVER_NAME_BASE_SVC%${id}')
       cmo.setCluster(cl)
+      log=create(templateName,'Log')
+      cd('/ServerTemplates/%s/Log/%s' % ( templateName, templateName ) )
+      set('FileName', '%DOMAIN_LOGS_DIR%/${serverName}.log')
+
       print('Done setting attributes for Server Template: %s' % templateName);
 
 

@@ -172,13 +172,13 @@ public abstract class PodStepContext {
     return getDomain().getLogHome();
   }
 
-  String getIncludeServerOutInPodLog() {
-    return getDomain().getIncludeServerOutInPodLog();
-  }
-
   abstract Integer getPort();
 
   abstract String getServerName();
+
+  String getIncludeServerOutInPodLog() {
+    return getDomain().getIncludeServerOutInPodLog();
+  }
 
   private String getAdminSecretName() {
     return getDomain().getAdminSecret().getName();
@@ -643,6 +643,7 @@ public abstract class PodStepContext {
     if (logHome == null || "".equals(logHome.trim())) {
       // logHome not specified, use default value
       addEnvVar(vars, "LOG_HOME", DEFAULT_LOG_HOME);
+      addEnvVar(vars, "REDIRECT_LOGS", "false");
     } else {
       addEnvVar(vars, "LOG_HOME", logHome);
       addEnvVar(vars, "REDIRECT_LOGS", "true");

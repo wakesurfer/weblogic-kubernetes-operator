@@ -346,12 +346,37 @@ public abstract class PodHelperTestBase {
             hasEnvVar("DOMAIN_UID", UID),
             hasEnvVar("NODEMGR_HOME", NODEMGR_HOME),
             hasEnvVar("LOG_HOME", LOG_HOME),
+            hasEnvVar("SERVER_OUT_IN_POD_LOG", INCLUDE_SERVER_OUT_IN_POD_LOG),
             hasEnvVar("SERVICE_NAME", LegalNames.toServerServiceName(UID, getServerName())),
             hasEnvVar("AS_SERVICE_NAME", LegalNames.toServerServiceName(UID, ADMIN_SERVER))));
   }
 
+  @Test
+  public void whenPodCreated_withLogHomeSpecified_hasLogHomeAndTrueRedirectLogsEnvVariables() {
+    final String MY_LOG_HOME = "/shared/mylogs";
+    domainPresenceInfo.getDomain().getSpec().setLogHome("/shared/mylogs");
+    assertThat(
+        getCreatedPodSpecContainer().getEnv(),
+        allOf(hasEnvVar("LOG_HOME", MY_LOG_HOME), hasEnvVar("REDIRECT_LOGS", "true")));
+  }
+
+  @Test
+  public void
+      whenPodCreated_withoutLogHomeSpecified_hasDefaultLogHomeAndFalseRedirectLogsEnvVariables() {
+    final String DEFAULT_LOG_HOME = "/shared/logs"; // from PodStepContext.DEFAULT_LOG_HOME
+
+    domainPresenceInfo.getDomain().getSpec().setLogHome(null);
+    assertThat(
+        getCreatedPodSpecContainer().getEnv(),
+        allOf(hasEnvVar("LOG_HOME", DEFAULT_LOG_HOME), hasEnvVar("REDIRECT_LOGS", "false")));
+  }
+
   static Matcher<Iterable<? super V1EnvVar>> hasEnvVar(String name, String value) {
     return hasItem(new V1EnvVar().name(name).value(value));
+  }
+
+  static Matcher<Iterable<? super V1EnvVar>> hasEnvVar(String name) {
+    return hasItem(new V1EnvVar().name(name));
   }
 
   @Test
@@ -568,6 +593,7 @@ public abstract class PodHelperTestBase {
         .addEnvItem(envItem("DOMAIN_UID", UID))
         .addEnvItem(envItem("NODEMGR_HOME", NODEMGR_HOME))
         .addEnvItem(envItem("LOG_HOME", LOG_HOME))
+        .addEnvItem(envItem("REDIRECT_LOGS", "false"))
         .addEnvItem(envItem("SERVER_OUT_IN_POD_LOG", INCLUDE_SERVER_OUT_IN_POD_LOG))
         .addEnvItem(envItem("SERVICE_NAME", LegalNames.toServerServiceName(UID, getServerName())))
         .addEnvItem(envItem("AS_SERVICE_NAME", LegalNames.toServerServiceName(UID, ADMIN_SERVER)))
