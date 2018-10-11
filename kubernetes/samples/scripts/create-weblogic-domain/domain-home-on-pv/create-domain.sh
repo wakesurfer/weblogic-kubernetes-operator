@@ -238,7 +238,6 @@ function initialize {
     t3PublicAddress \
     version \
     persistentVolumeClaimName \
-    podDomainRootDir \
     includeServerOutInPodLog 
 
   validateIntegerInputParamsSpecified \
@@ -316,9 +315,9 @@ function createYamlFiles {
     createDomainScriptName="create-domain-job.sh"
   fi
 
-  # If logHome is not specified, defaults DOMAIN_LOGS_DIR to ${podDomainRootDir}/logs
+  # If logHome is not specified, defaults DOMAIN_LOGS_DIR to ${domainPVMountPath}/logs
   if [ -z "${logHome}" ]; then
-    domainLogsDir="${podDomainRootDir}/logs"
+    domainLogsDir="${domainPVMountPath}/logs"
   else
     domainLogsDir="${logHome}"
   fi
@@ -351,7 +350,7 @@ function createYamlFiles {
   sed -i -e "s:%CLUSTER_NAME%:${clusterName}:g" ${createJobOutput}
   sed -i -e "s:%CLUSTER_TYPE%:${clusterType}:g" ${createJobOutput}
   sed -i -e "s:%DOMAIN_PVC_NAME%:${persistentVolumeClaimName}:g" ${createJobOutput}
-  sed -i -e "s:%DOMAIN_ROOT_DIR%:${podDomainRootDir}:g" ${createJobOutput}
+  sed -i -e "s:%DOMAIN_ROOT_DIR%:${domainPVMountPath}:g" ${createJobOutput}
   sed -i -e "s:%DOMAIN_LOGS_DIR%:${domainLogsDir}:g" ${createJobOutput}
   sed -i -e "s:%CREATE_DOMAIN_SCRIPT_DIR%:${createDomainScriptsMountPath}:g" ${createJobOutput}
   sed -i -e "s:%CREATE_DOMAIN_SCRIPT%:${createDomainScriptName}:g" ${createJobOutput}
