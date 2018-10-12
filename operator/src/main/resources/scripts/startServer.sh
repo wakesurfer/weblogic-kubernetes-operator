@@ -85,6 +85,9 @@ else
   serverOutFile="${domain_home}/servers/${server_name}/logs/${server_name}.out"
 fi
 
+# make sure log_home directory is created
+createFolder ${log_home}
+
 nmLogFile="${log_home}/nodemanager-${server_name}.log"
 
 # Check for stale state file and remove if found

@@ -102,7 +102,7 @@ public abstract class PodHelperTestBase {
   private static final int CONFIGURED_TIMEOUT = 27;
   private static final int CONFIGURED_PERIOD = 35;
   private static final String DOMAIN_HOME = "/shared/domain/domain1";
-  private static final String LOG_HOME = "/shared/logs";
+  private static final String LOG_HOME = "/shared/logs/" + UID;
   private static final String NODEMGR_HOME = "/u01/nodemanager";
   private static final String CREDENTIALS_VOLUME_NAME = "weblogic-credentials-volume";
   private static final String CONFIGMAP_VOLUME_NAME = "weblogic-domain-cm-volume";
@@ -363,12 +363,10 @@ public abstract class PodHelperTestBase {
   @Test
   public void
       whenPodCreated_withoutLogHomeSpecified_hasDefaultLogHomeAndFalseRedirectLogsEnvVariables() {
-    final String DEFAULT_LOG_HOME = "/shared/logs"; // from PodStepContext.DEFAULT_LOG_HOME
-
     domainPresenceInfo.getDomain().getSpec().setLogHome(null);
     assertThat(
         getCreatedPodSpecContainer().getEnv(),
-        allOf(hasEnvVar("LOG_HOME", DEFAULT_LOG_HOME), hasEnvVar("REDIRECT_LOGS", "false")));
+        allOf(hasEnvVar("LOG_HOME", LOG_HOME), hasEnvVar("REDIRECT_LOGS", "false")));
   }
 
   static Matcher<Iterable<? super V1EnvVar>> hasEnvVar(String name, String value) {

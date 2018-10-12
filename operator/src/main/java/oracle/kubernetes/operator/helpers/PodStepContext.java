@@ -27,6 +27,7 @@ import io.kubernetes.client.models.V1SecretVolumeSource;
 import io.kubernetes.client.models.V1Status;
 import io.kubernetes.client.models.V1Volume;
 import io.kubernetes.client.models.V1VolumeMount;
+import java.io.File;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
@@ -642,7 +643,7 @@ public abstract class PodStepContext {
     String logHome = getLogHome();
     if (logHome == null || "".equals(logHome.trim())) {
       // logHome not specified, use default value
-      addEnvVar(vars, "LOG_HOME", DEFAULT_LOG_HOME);
+      addEnvVar(vars, "LOG_HOME", DEFAULT_LOG_HOME + File.separator + getDomainUID());
       addEnvVar(vars, "REDIRECT_LOGS", "false");
     } else {
       addEnvVar(vars, "LOG_HOME", logHome);
