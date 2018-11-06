@@ -435,4 +435,59 @@ public class WlsDomainConfig implements WlsDomain {
         + wlsMachineConfigs
         + '}';
   }
+
+  public static WlsDomainConfig createMockDynamicConfig() {
+    return WlsDomainConfig.create(JSON_STRING_DYNAMIC_CLUSTER);
+  }
+
+  public static void main(String argv[]) {
+    WlsDomainConfig wlsDomainConfig = WlsDomainConfig.createMockDynamicConfig();
+    System.out.println(wlsDomainConfig);
+  }
+
+  private static final String JSON_STRING_DYNAMIC_CLUSTER =
+      "{     \"name\": \"domain1\",\n "
+          + "\"servers\": {\"items\": [\n"
+          + "    {\n"
+          + "        \"listenAddress\": \"domain1-admin-server\",\n"
+          + "        \"name\": \"admin-server\",\n"
+          + "        \"listenPort\": 7001,\n"
+          + "        \"cluster\": null,\n"
+          + "        \"networkAccessPoints\": {\"items\": [\n "
+          + "            {\n"
+          + "                \"name\": \"T3Channel\",\n"
+          + "                \"listenPort\": 30012\n"
+          + "            }\n"
+          + "        ]}\n"
+          + "    }\n"
+          + " ]},\n"
+          + "\"serverTemplates\": {\"items\": [\n"
+          + "    {\n"
+          + "        \"listenAddress\": \"domain1-managed-server${id}\",\n"
+          + "        \"name\": \"cluster-1-template\",\n"
+          + "        \"listenPort\": 8001,\n"
+          + "        \"cluster\": [\n"
+          + "            \"cluster-1\"\n"
+          + "        ]\n"
+          + "    }\n"
+          + "    ]},\n"
+          + "    \"clusters\": {\"items\": [\n"
+          + "        {\n"
+          + "            \"name\": \"cluster-1\",\n"
+          + "            \"dynamicServers\": {\n"
+          + "                \"dynamicClusterSize\": 2,\n"
+          + "                \"maxDynamicClusterSize\": 2,\n"
+          + "                \"serverNamePrefix\": \"managed-server\",\n"
+          + "                \"dynamicServerNames\": [\n"
+          + "                    \"managed-server1\",\n"
+          + "                    \"managed-server2\"\n"
+          + "                ],\n"
+          + "                \"calculatedListenPorts\": false,\n"
+          + "                \"serverTemplate\": [\n"
+          + "                    \"cluster-1-template\"\n"
+          + "                ]\n"
+          + "            }\n"
+          + "        }"
+          + "    ]}\n"
+          + "}";
 }

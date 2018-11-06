@@ -16,6 +16,7 @@ import oracle.kubernetes.operator.work.NextAction;
 import oracle.kubernetes.operator.work.Packet;
 import oracle.kubernetes.operator.work.Step;
 import oracle.kubernetes.weblogic.domain.v1.Domain;
+import oracle.kubernetes.weblogic.domain.v2.Cluster;
 
 public abstract class JobStepContext implements StepContextConstants {
   private static final LoggingFacade LOGGER = LoggingFactory.getLogger("Operator", "Operator");
@@ -112,7 +113,7 @@ public abstract class JobStepContext implements StepContextConstants {
     return getDomain().isDomainHomeInImage();
   }
 
-  String getEffectiveLogHome() {
+  protected String getEffectiveLogHome() {
     String logHome = getLogHome();
     if (logHome == null || "".equals(logHome.trim())) {
       // logHome not specified, use default value
@@ -121,8 +122,12 @@ public abstract class JobStepContext implements StepContextConstants {
     return logHome;
   }
 
-  String getIncludeServerOutInPodLog() {
+  protected String getIncludeServerOutInPodLog() {
     return getDomain().getIncludeServerOutInPodLog();
+  }
+
+  protected List<Cluster> getClusters() {
+    return getDomain().getSpec().getClusters();
   }
 
   protected String getIntrospectHome() {
@@ -225,7 +230,11 @@ public abstract class JobStepContext implements StepContextConstants {
   }
 
   String getImageName() {
-    return KubernetesConstants.DEFAULT_IMAGE;
+    String imageName = getDomain().getSpec().getImage();
+    if (imageName == null) {
+      imageName = KubernetesConstants.DEFAULT_IMAGE;
+    }
+    return imageName;
   }
 
   String getImagePullPolicy() {

@@ -97,6 +97,8 @@ class OfflineWlstEnv(object):
     self.DOMAIN_HOME        = self.getEnv('DOMAIN_HOME')
     self.LOG_HOME           = self.getEnv('LOG_HOME')
 
+    trace("CLUSTERS_REPLICAS is " + self.getEnv('CLUSTERS_REPLICAS'))
+
     # initialize globals
 
     self.INTROSPECT_HOME    = '/tmp/introspect/' + self.DOMAIN_UID
