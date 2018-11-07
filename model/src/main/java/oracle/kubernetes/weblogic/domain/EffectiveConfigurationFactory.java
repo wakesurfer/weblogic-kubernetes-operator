@@ -22,6 +22,8 @@ public interface EffectiveConfigurationFactory {
 
   void setReplicaCount(String clusterName, int replicaCount);
 
+  Map<String, Integer> getReplicaCounts();
+
   boolean isShuttingDown();
 
   List<String> getExportedNetworkAccessPointNames();

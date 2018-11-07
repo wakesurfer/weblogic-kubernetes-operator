@@ -15,6 +15,7 @@ import io.kubernetes.client.models.V1LocalObjectReference;
 import io.kubernetes.client.models.V1SecretReference;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
@@ -1081,6 +1082,19 @@ public class DomainSpec extends BaseConfiguration {
     }
 
     @Override
+    public Map<String, Integer> getReplicaCounts() {
+      List<ClusterStartup> clusterStartups = getClusterStartup();
+      if (clusterStartups != null) {
+        Map<String, Integer> replicaCountsMap = new HashMap<>();
+        for (ClusterStartup clusterStartup : clusterStartups) {
+          replicaCountsMap.put(clusterStartup.getClusterName(), clusterStartup.getReplicas());
+        }
+        return replicaCountsMap;
+      }
+      return Collections.EMPTY_MAP;
+    }
+
+    @Override
     public boolean isShuttingDown() {
       return StartupControlConstants.NONE_STARTUPCONTROL.equals(getEffectiveStartupControl());
     }
@@ -1152,6 +1166,19 @@ public class DomainSpec extends BaseConfiguration {
     @Override
     public void setReplicaCount(String clusterName, int replicaCount) {
       getOrCreateCluster(clusterName).setReplicas(replicaCount);
+    }
+
+    @Override
+    public Map<String, Integer> getReplicaCounts() {
+      List<Cluster> clusters = getClusters();
+      if (clusters != null) {
+        Map<String, Integer> replicaCountsMap = new HashMap<>();
+        for (Cluster cluster : clusters) {
+          replicaCountsMap.put(cluster.getClusterName(), cluster.getReplicas());
+        }
+        return replicaCountsMap;
+      }
+      return Collections.EMPTY_MAP;
     }
 
     @Override

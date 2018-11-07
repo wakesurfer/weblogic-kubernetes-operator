@@ -214,6 +214,11 @@ public class Domain {
     getEffectiveConfigurationFactory().setReplicaCount(clusterName, replicaLimit);
   }
 
+  /** @return */
+  public Map<String, Integer> getReplicaCounts() {
+    return getEffectiveConfigurationFactory().getReplicaCounts();
+  }
+
   String getEffectiveStartupControl() {
     return spec.getEffectiveStartupControl();
   }

@@ -4,6 +4,7 @@ import io.kubernetes.client.models.*;
 import java.io.File;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Map;
 import oracle.kubernetes.operator.KubernetesConstants;
 import oracle.kubernetes.operator.LabelConstants;
 import oracle.kubernetes.operator.ProcessingConstants;
@@ -16,7 +17,6 @@ import oracle.kubernetes.operator.work.NextAction;
 import oracle.kubernetes.operator.work.Packet;
 import oracle.kubernetes.operator.work.Step;
 import oracle.kubernetes.weblogic.domain.v1.Domain;
-import oracle.kubernetes.weblogic.domain.v2.Cluster;
 
 public abstract class JobStepContext implements StepContextConstants {
   private static final LoggingFacade LOGGER = LoggingFactory.getLogger("Operator", "Operator");
@@ -126,8 +126,8 @@ public abstract class JobStepContext implements StepContextConstants {
     return getDomain().getIncludeServerOutInPodLog();
   }
 
-  protected List<Cluster> getClusters() {
-    return getDomain().getSpec().getClusters();
+  protected Map<String, Integer> getReplicaCounts() {
+    return getDomain().getReplicaCounts();
   }
 
   protected String getIntrospectHome() {

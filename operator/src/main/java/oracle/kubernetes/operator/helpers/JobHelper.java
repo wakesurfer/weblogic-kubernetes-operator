@@ -11,6 +11,7 @@ import io.kubernetes.client.models.V1Pod;
 import io.kubernetes.client.models.V1PodList;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 import oracle.kubernetes.operator.JobWatcher;
 import oracle.kubernetes.operator.LabelConstants;
 import oracle.kubernetes.operator.ProcessingConstants;
@@ -24,7 +25,6 @@ import oracle.kubernetes.operator.steps.WatchDomainIntrospectorJobReadyStep;
 import oracle.kubernetes.operator.work.NextAction;
 import oracle.kubernetes.operator.work.Packet;
 import oracle.kubernetes.operator.work.Step;
-import oracle.kubernetes.weblogic.domain.v2.Cluster;
 
 public class JobHelper {
 
@@ -78,16 +78,15 @@ public class JobHelper {
       addEnvVar(envVarList, "SERVER_OUT_IN_POD_LOG", getIncludeServerOutInPodLog());
       // set CLUSTERS_REPLICAS env var with value "cluster1:replica1;cluster2:replica2" etc
       StringBuffer replicas = new StringBuffer();
-      List<Cluster> clusters = getClusters();
-      if (clusters != null) {
-        for (Cluster cluster : clusters) {
-          if (replicas.length() > 0) {
-            // not the first entry
-            replicas.append(',');
-          }
-          replicas.append(cluster.getClusterName() + ":" + cluster.getReplicas());
+      Map<String, Integer> replicaCounts = getReplicaCounts();
+      for (Map.Entry<String, Integer> replicaCountsEntry : replicaCounts.entrySet()) {
+        if (replicas.length() > 0) {
+          // not the first entry
+          replicas.append(',');
         }
+        replicas.append(replicaCountsEntry.getKey() + ":" + replicaCountsEntry.getValue());
       }
+      LOGGER.warning("xyz- JobHelper CLUSTER_REPLICAS value is " + replicas.toString());
       addEnvVar(envVarList, "CLUSTERS_REPLICAS", replicas.toString());
       return envVarList;
     }
