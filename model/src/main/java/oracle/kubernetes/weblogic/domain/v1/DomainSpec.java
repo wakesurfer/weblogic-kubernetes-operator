@@ -957,15 +957,11 @@ public class DomainSpec extends BaseConfiguration {
             .append(asPort)
             .append(image)
             .append(imagePullPolicy)
-            .append(storage);
+            .append(storage)
+            .append(includeServerOutInPodLog);
 
     if (hasV2Configuration())
-      builder
-          .append(imagePullSecrets)
-          .append(adminServer)
-          .append(managedServers)
-          .append(clusters)
-          .append(includeServerOutInPodLog);
+      builder.append(imagePullSecrets).append(adminServer).append(managedServers).append(clusters);
     else
       builder
           .append(imagePullSecret)
@@ -995,14 +991,14 @@ public class DomainSpec extends BaseConfiguration {
             .append(asPort, rhs.asPort)
             .append(image, rhs.image)
             .append(storage, rhs.storage)
-            .append(imagePullPolicy, rhs.imagePullPolicy);
+            .append(imagePullPolicy, rhs.imagePullPolicy)
+            .append(includeServerOutInPodLog, rhs.includeServerOutInPodLog);
 
     if (hasV2Configuration())
       builder
           .append(imagePullSecrets, rhs.imagePullSecrets)
           .append(adminServer, rhs.adminServer)
           .append(managedServers, rhs.managedServers)
-          .append(includeServerOutInPodLog, rhs.includeServerOutInPodLog)
           .append(clusters, rhs.clusters);
     else
       builder
