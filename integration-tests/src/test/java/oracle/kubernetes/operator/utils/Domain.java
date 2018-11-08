@@ -85,6 +85,7 @@ public class Domain {
     verifyPodsCreated();
     verifyServicesCreated();
     verifyServersReady();
+    logger.info("alai- domain " + domainUid + " created successfully");
   }
 
   /**
@@ -95,8 +96,22 @@ public class Domain {
   public void verifyPodsCreated() throws Exception {
     // check admin pod
     logger.info("Checking if admin pod(" + domainUid + "-" + adminServerName + ") is Running");
-    TestUtils.checkPodCreated(domainUid + "-" + adminServerName, domainNS);
-
+    try {
+      TestUtils.checkPodCreated(domainUid + "-" + adminServerName, domainNS);
+    } catch (RuntimeException runtimeException) {
+      StringBuffer command = new StringBuffer();
+      command
+          .append("kubectl describe configmap " + domainUid + "-weblogic-domain-introspect-cm ")
+          .append(" -n ")
+          .append(domainNS);
+      ExecResult result = ExecCommand.exec(command.toString());
+      logger.info(
+          "alai- configmap "
+              + domainUid
+              + "-weblogic-domain-introspect-cm contains: "
+              + result.stdout());
+      throw runtimeException;
+    }
     if (domainMap.get("startupControl") == null
         || (domainMap.get("startupControl") != null
             && !domainMap.get("startupControl").toString().trim().equals("ADMIN"))) {
