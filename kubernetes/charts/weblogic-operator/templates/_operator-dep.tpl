@@ -3,20 +3,20 @@
 
 {{- define "operator.operatorDeployment" }}
 ---
-apiVersion: "apps/v1beta1" # for versions before 1.6.0 use extensions/v1beta1
+apiVersion: "apps/v1beta1"
 kind: "Deployment"
 metadata:
   name: "weblogic-operator"
   namespace: {{ .Release.Namespace | quote }}
   labels:
-    weblogic.resourceVersion: "operator-v1"
+    weblogic.resourceVersion: "operator-v2"
     weblogic.operatorName: {{ .Release.Namespace | quote }}
 spec:
   replicas: 1
   template:
     metadata:
      labels:
-        weblogic.resourceVersion: "operator-v1"
+        weblogic.resourceVersion: "operator-v2"
         weblogic.operatorName: {{ .Release.Namespace | quote }}
         app: "weblogic-operator"
     spec:
@@ -46,6 +46,8 @@ spec:
         volumeMounts:
         - name: "weblogic-operator-cm-volume"
           mountPath: "/operator/config"
+        - name: "weblogic-operator-debug-cm-volume"
+          mountPath: "/operator/debug-config"
         - name: "weblogic-operator-secrets-volume"
           mountPath: "/operator/secrets"
           readOnly: true
@@ -82,6 +84,10 @@ spec:
       - name: "weblogic-operator-cm-volume"
         configMap:
           name: "weblogic-operator-cm"
+      - name: "weblogic-operator-debug-cm-volume"
+        configMap:
+          name: "weblogic-operator-debug-cm"
+          optional: true
       - name: "weblogic-operator-secrets-volume"
         secret:
           secretName: "weblogic-operator-secrets"

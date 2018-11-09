@@ -49,8 +49,8 @@ import oracle.kubernetes.operator.steps.DefaultResponseStep;
 import oracle.kubernetes.operator.work.NextAction;
 import oracle.kubernetes.operator.work.Packet;
 import oracle.kubernetes.operator.work.Step;
-import oracle.kubernetes.weblogic.domain.v1.Domain;
-import oracle.kubernetes.weblogic.domain.v1.ServerSpec;
+import oracle.kubernetes.weblogic.domain.v2.Domain;
+import oracle.kubernetes.weblogic.domain.v2.ServerSpec;
 import org.apache.commons.lang3.builder.EqualsBuilder;
 
 @SuppressWarnings("deprecation")
@@ -593,7 +593,16 @@ public abstract class PodStepContext implements StepContextConstants {
                     .configMap(
                         new V1ConfigMapVolumeSource()
                             .name(KubernetesConstants.DOMAIN_CONFIG_MAP_NAME)
-                            .defaultMode(ALL_READ_AND_EXECUTE)));
+                            .defaultMode(ALL_READ_AND_EXECUTE)))
+            .addVolumesItem(
+                new V1Volume()
+                    .name(DEBUG_CM_VOLUME)
+                    .configMap(
+                        new V1ConfigMapVolumeSource()
+                            .name(
+                                getDomainUID() + KubernetesConstants.DOMAIN_DEBUG_CONFIG_MAP_SUFFIX)
+                            .defaultMode(ALL_READ_AND_EXECUTE)
+                            .optional(Boolean.TRUE)));
 
     if (isEnableDomainIntrospectorJob()) {
       podSpec.addVolumesItem(
@@ -620,11 +629,16 @@ public abstract class PodStepContext implements StepContextConstants {
               .persistentVolumeClaim(
                   new V1PersistentVolumeClaimVolumeSource().claimName(getClaimName())));
     }
+
+    for (V1Volume additionalVolume : getAdditionalVolumes()) {
+      podSpec.addVolumesItem(additionalVolume);
+    }
+
     return podSpec;
   }
 
   private V1Container createContainer(TuningParameters tuningParameters) {
-    V1Container container =
+    V1Container v1Container =
         new V1Container()
             .name(KubernetesConstants.CONTAINER_NAME)
             .image(getImageName())
@@ -636,18 +650,23 @@ public abstract class PodStepContext implements StepContextConstants {
             .addVolumeMountsItem(volumeMount(STORAGE_VOLUME, STORAGE_MOUNT_PATH))
             .addVolumeMountsItem(readOnlyVolumeMount(SECRETS_VOLUME, SECRETS_MOUNT_PATH))
             .addVolumeMountsItem(readOnlyVolumeMount(SCRIPTS_VOLUME, SCRIPTS_MOUNTS_PATH))
+            .addVolumeMountsItem(readOnlyVolumeMount(DEBUG_CM_VOLUME, DEBUG_CM_MOUNTS_PATH))
             .readinessProbe(createReadinessProbe(tuningParameters.getPodTuning()))
             .livenessProbe(createLivenessProbe(tuningParameters.getPodTuning()));
 
+    for (V1VolumeMount additionalVolumeMount : getAdditionalVolumeMounts()) {
+      v1Container.addVolumeMountsItem(additionalVolumeMount);
+    }
+
     if (isEnableDomainIntrospectorJob()) {
-      container.addVolumeMountsItem(
+      v1Container.addVolumeMountsItem(
           // volumeMount(getSitConfigMapVolumeName(getDomainUID()), getDomainHome() +
           // "/optconfig"));
           volumeMount(
               getSitConfigMapVolumeName(getDomainUID()), "/weblogic-operator/introspector"));
     }
 
-    return container;
+    return v1Container;
   }
 
   private boolean isEnableDomainIntrospectorJob() {
@@ -677,6 +696,10 @@ public abstract class PodStepContext implements StepContextConstants {
   }
 
   abstract List<V1EnvVar> getEnvironmentVariables(TuningParameters tuningParameters);
+
+  abstract List<V1Volume> getAdditionalVolumes();
+
+  abstract List<V1VolumeMount> getAdditionalVolumeMounts();
 
   void overrideContainerWeblogicEnvVars(List<V1EnvVar> vars) {
     // Override the domain name, domain directory, admin server name and admin server port.
