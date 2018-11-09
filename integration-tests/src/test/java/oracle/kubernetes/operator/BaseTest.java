@@ -186,11 +186,6 @@ public class BaseTest {
   public void testDomainLifecyle(Operator operator, Domain domain) throws Exception {
     logger.info("Inside testDomainLifecyle");
     domain.destroy();
-    logger.info("alai- introduce a 2 minute slee betweeen destroy() and create()");
-    try {
-      Thread.sleep(120000);
-    } catch (InterruptedException e) {
-    }
     domain.create();
     operator.verifyExternalRESTService();
     operator.verifyDomainExists(domain.getDomainUid());
