@@ -697,6 +697,8 @@ public class Domain {
           Thread.sleep(waitTime * 1000);
         } catch (InterruptedException ignore) {
         }
+      } else {
+        break;
       }
     }
   }
