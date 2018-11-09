@@ -130,7 +130,8 @@ public class JobHelper {
 
     @Override
     public NextAction apply(Packet packet) {
-      return doNext(deleteJob(getNext()), packet);
+      //      return doNext(deleteJob(getNext()), packet);
+      return doNext(getNext(), packet);
     }
 
     String getJobDeletedMessageKey() {

@@ -50,7 +50,7 @@ function state_dump {
   echo "Copying logs and describes to pod-log.NAMESPACE.PODNAME and pod-describe.NAMESPACE.PODNAME in ${DUMP_DIR}"
   for namespace in $namespaces; do
     set +x
-    local pods="`kubectl get pods -n $namespace --ignore-not-found | egrep -v -e "(STATUS)" | awk '{print $1}'`"
+    local pods="`kubectl get pods -n $namespace --show-all --ignore-not-found | egrep -v -e "(STATUS)" | awk '{print $1}'`"
     set -x
     local pod
     for pod in $pods; do

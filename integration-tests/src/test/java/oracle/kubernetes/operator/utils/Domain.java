@@ -98,7 +98,7 @@ public class Domain {
     logger.info("Checking if admin pod(" + domainUid + "-" + adminServerName + ") is Running");
     try {
       TestUtils.checkPodCreated(domainUid + "-" + adminServerName, domainNS);
-    } catch (RuntimeException runtimeException) {
+    } finally {
       StringBuffer command = new StringBuffer();
       command
           .append("kubectl describe configmap " + domainUid + "-weblogic-domain-introspect-cm ")
@@ -108,9 +108,8 @@ public class Domain {
       logger.info(
           "alai- configmap "
               + domainUid
-              + "-weblogic-domain-introspect-cm contains: "
+              + "-weblogic-domain-introspect-cm contains: \n"
               + result.stdout());
-      throw runtimeException;
     }
     if (domainMap.get("startupControl") == null
         || (domainMap.get("startupControl") != null
