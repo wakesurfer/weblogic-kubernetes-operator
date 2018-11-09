@@ -38,12 +38,31 @@
 
 SCRIPTPATH="$( cd "$(dirname "$0")" > /dev/null 2>&1 ; pwd -P )"
 
+function createFolder {
+  # TBD was 777
+  mkdir -m 750 -p $1
+  if [ ! -d $1 ]; then
+    trace "Unable to create folder $1"
+    exit 1
+  fi
+}
+
+createFolder $LOG_HOME
+log_file=${LOG_HOME}/introspector-debug.log
+
+echo "=============================" >> $log_file
+echo "Beginning of introspectDomain" >> $log_file
+echo "=============================" >> $log_file
+
 # setup tracing
 
 source ${SCRIPTPATH}/traceUtils.sh
 [ $? -ne 0 ] && echo "Error: missing file ${SCRIPTPATH}/traceUtils.sh" && exit 1 
 
+echo "traceUtils.sh found ok" >> $log_file
+
 trace "Introspecting the domain"
+echo "Introspecting the domain" >> $log_file
 
 trace "Current environment:"
 env
@@ -54,6 +73,8 @@ export WL_HOME=${WL_HOME:-/u01/oracle/wlserver}
 export MW_HOME=${MW_HOME:-/u01/oracle}
 
 # check if prereq env-vars, files, and directories exist
+
+echo "Checking prereq env-vars" >> $log_file
 
 checkEnv DOMAIN_UID \
          NAMESPACE \
@@ -71,6 +92,8 @@ for script_file in "${SCRIPTPATH}/wlst.sh" \
   [ ! -f "$script_file" ] && trace "Error: missing file '${script_file}'." && exit 1 
 done 
 
+echo "prereq env-vars checked ok" >> $log_file
+
 for dir_var in DOMAIN_HOME JAVA_HOME WL_HOME MW_HOME; do
   [ ! -d "${!dir_var}" ] && trace "Error: missing ${dir_var} directory '${!dir_var}'." && exit 1
 done
@@ -78,15 +101,20 @@ done
 # start node manager
 
 trace "Starting node manager"
+echo "Starting node manager" >> $log_file
 
 ${SCRIPTPATH}/startNodeManager.sh || exit 1
 
+echo "node manager started" >> $log_file
+
 # run instrospector wlst script
 
+echo "Running introspector WLST script ${SCRIPTPATH}/introspectDomain.py" >> $log_file
 trace "Running introspector WLST script ${SCRIPTPATH}/introspectDomain.py"
 
 ${SCRIPTPATH}/wlst.sh ${SCRIPTPATH}/introspectDomain.py || exit 1
 
 trace "Domain introspection complete"
+echo "Domain introspector complete" >> $log_file
 
 exit 0
