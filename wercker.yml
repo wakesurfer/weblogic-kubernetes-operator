@@ -89,10 +89,10 @@ integration-test-java:
 
       # Update KUBECONFIG for K8S cluster
       export K8S_NODEPORT_HOST="${OKE_PIPELINE_WORKER0_HOSTNAME}"
-      sed -i -e "s,%CA_DATA%,$OKE_PIPELINE_CA_DATA,g" $WERCKER_SOURCE_DIR/build/kube.config
-      sed -i -e "s,%ADDRESS%,$OKE_PIPELINE_MASTER_ADDRESS,g" $WERCKER_SOURCE_DIR/build/kube.config
-      sed -i -e "s,%TOKEN%,$OKE_PIPELINE_USER_TOKEN,g" $WERCKER_SOURCE_DIR/build/kube.config
-      export KUBECONFIG="$WERCKER_SOURCE_DIR/build/kube.config"
+      sed -i -e "s,%CA_DATA%,$OKE_PIPELINE_CA_DATA,g" $WERCKER_SOURCE_DIR/integration-tests/kube.config
+      sed -i -e "s,%ADDRESS%,$OKE_PIPELINE_MASTER_ADDRESS,g" $WERCKER_SOURCE_DIR/integration-tests/kube.config
+      sed -i -e "s,%TOKEN%,$OKE_PIPELINE_USER_TOKEN,g" $WERCKER_SOURCE_DIR/integration-tests/kube.config
+      export KUBECONFIG="$WERCKER_SOURCE_DIR/integration-tests/kube.config"
 
       # running on Wercker
       export WERCKER="true"
