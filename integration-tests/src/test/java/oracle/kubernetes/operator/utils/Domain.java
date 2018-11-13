@@ -364,6 +364,35 @@ public class Domain {
     } catch (Throwable t) {
       // ignore
     }
+    try {
+      StringBuffer command = new StringBuffer();
+      command
+          .append("kubectl delete job " + domainUid + "-introspect-domain-job ")
+          .append(" -n ")
+          .append(domainNS);
+      ExecResult result = ExecCommand.exec(command.toString());
+      logger.info(
+          "alai- before creating domain "
+              + domainUid
+              + ", kubectl delete job: \n"
+              + result.stdout());
+
+    } catch (Throwable t) {
+      // ignore
+    }
+    try {
+      StringBuffer command = new StringBuffer();
+      command.append("kubectl get jobs ").append(" -n ").append(domainNS);
+      ExecResult result = ExecCommand.exec(command.toString());
+      logger.info(
+          "alai- again before creating domain "
+              + domainUid
+              + ", kubectl get jobs: \n"
+              + result.stdout());
+
+    } catch (Throwable t) {
+      // ignore
+    }
     StringBuffer cmd = new StringBuffer("kubectl create -f ");
     cmd.append(userProjectsDir)
         .append("/weblogic-domains/")
