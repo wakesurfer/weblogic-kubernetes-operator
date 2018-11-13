@@ -354,6 +354,16 @@ public class Domain {
    * @throws Exception
    */
   public void create() throws Exception {
+    try {
+      StringBuffer command = new StringBuffer();
+      command.append("kubectl get jobs ").append(" -n ").append(domainNS);
+      ExecResult result = ExecCommand.exec(command.toString());
+      logger.info(
+          "alai- before creating domain " + domainUid + ", kubectl get jobs: \n" + result.stdout());
+
+    } catch (Throwable t) {
+      // ignore
+    }
     StringBuffer cmd = new StringBuffer("kubectl create -f ");
     cmd.append(userProjectsDir)
         .append("/weblogic-domains/")

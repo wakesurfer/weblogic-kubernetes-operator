@@ -183,7 +183,7 @@ public class ITOperator extends BaseTest {
     logger.info("SUCCESS - test5CreateConfiguredDomainInTest2NS");
   }
 
-  @Test
+  // @Test
   public void test6CreateDomainWithStartPolicyAdminOnly() throws Exception {
     Assume.assumeFalse(
         System.getenv("QUICKTEST") != null && System.getenv("QUICKTEST").equalsIgnoreCase("true"));
