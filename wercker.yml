@@ -84,14 +84,14 @@ integration-test-java:
       #!/bin/bash
 
       cp /etc/hosts $WERCKER_PIPELINE_DIR/hosts
-      sed -i "$ a ${OCI_K8S_WORKER0_IP} ${OCI_K8S_WORKER0_HOSTNAME}" $WERCKER_PIPELINE_DIR/hosts
+      sed -i "$ a ${OKE_PIPELINE_WORKER0_IP} ${OKE_PIPELINE_WORKER0_HOSTNAME}" $WERCKER_PIPELINE_DIR/hosts
       cp $WERCKER_PIPELINE_DIR/hosts /etc/hosts
 
       # Update KUBECONFIG for K8S cluster
-      export K8S_NODEPORT_HOST="${OCI_K8S_WORKER0_HOSTNAME}"
-      sed -i -e "s,%ADDRESS%,https://$OCI_K8S_MASTER_IP:443,g" $WERCKER_SOURCE_DIR/build/kube.config
-      sed -i -e "s,%CLIENT_CERT_DATA%,$OCI_K8S_CLIENT_CERT_DATA,g" $WERCKER_SOURCE_DIR/build/kube.config
-      sed -i -e "s,%CLIENT_KEY_DATA%,$OCI_K8S_CLIENT_KEY_DATA,g" $WERCKER_SOURCE_DIR/build/kube.config
+      export K8S_NODEPORT_HOST="${OKE_PIPELINE_WORKER0_HOSTNAME}"
+      sed -i -e "s,%CA_DATA%,$OKE_PIPELINE_CA_DATA,g" $WERCKER_SOURCE_DIR/build/kube.config
+      sed -i -e "s,%ADDRESS%,$OKE_PIPELINE_MASTER_ADDRESS,g" $WERCKER_SOURCE_DIR/build/kube.config
+      sed -i -e "s,%TOKEN%,$OKE_PIPELINE_USER_TOKEN,g" $WERCKER_SOURCE_DIR/build/kube.config
       export KUBECONFIG="$WERCKER_SOURCE_DIR/build/kube.config"
 
       # running on Wercker
@@ -99,7 +99,7 @@ integration-test-java:
 
       # install kubectl
       # export K8S_CLIENT_VERSION="$(curl -s https://storage.googleapis.com/kubernetes-release/release/stable.txt)"   #latest version
-      export K8S_CLIENT_VERSION="v1.10.5"
+      export K8S_CLIENT_VERSION=${K8S_CLIENT_VERSION:-v1.10.5}
       curl -LO https://storage.googleapis.com/kubernetes-release/release/${K8S_CLIENT_VERSION}/bin/linux/amd64/kubectl
       chmod +x ./kubectl
       mv ./kubectl /usr/local/bin/kubectl
@@ -118,44 +118,24 @@ integration-test-java:
       kubectl version
       
       echo @@ "Helm installation starts"
-      curl -LO http://kubernetes-helm.storage.googleapis.com/helm-v2.8.2-linux-amd64.tar.gz
+      export HELM_VERSION=${HELM_VERSION:-v2.11.0}
+      curl -LO http://kubernetes-helm.storage.googleapis.com/helm-${HELM_VERSION}-linux-amd64.tar.gz
       mkdir /tmp/helm
-      tar xzf helm-v2.8.2-linux-amd64.tar.gz -C /tmp/helm
+      tar xzf helm-${HELM_VERSION}-linux-amd64.tar.gz -C /tmp/helm
       chmod +x /tmp/helm/linux-amd64/helm
       mv /tmp/helm/linux-amd64/helm /usr/local/bin/
       rm -rf /tmp/helm
+      helm init --upgrade
       helm version
       echo @@ "Helm is installed."
 
-      # obtain an exclusive k8s cluster lease using the 'lease.sh' helper script
-      #   - first set LEASE_ID to a unique value
-      #   - then try obtain the lease, block up to 100 minutes (wercker pipeline should timeout before then)
-      #   - finally, run.sh will periodically try renew the lease as it runs (using $LEASE_ID)
-      #   - if run.sh fails when it tries to renew the lease (as something else took it, etc), it will exit early
-      #   - when run.sh exits, it will try release the lease if it's still the owner...
-      export LEASE_ID="${WERCKER_STEP_ID}-pid$$"
-      echo @@
-      echo @@ "Obtaining lease!"
-      echo @@
-      echo @@ "About to block up to the 100 minutes trying to get exclusive access to the kubernetes cluster."
-      echo @@ "If this blocks unexpectedly and you are sure that the kubernetes cluster isn't in use by "
-      echo @@ "another Wercker pipeline, you can force the lease to free up via 'kubectl delete cm acceptance-test-lease'."
-      echo @@ "See LEASE_ID in run.sh for details about this heuristic."
-      echo @@ "LEASE_ID=$LEASE_ID host=$HOST date=`date` user=$USER."
-      echo @@
-      echo @@ "Current lease owner (if any):"
-      $WERCKER_SOURCE_DIR/src/integration-tests/bash/lease.sh -s
-      echo @@
-      echo @@ "About to try obtain lease:"
-      $WERCKER_SOURCE_DIR/src/integration-tests/bash/lease.sh -o "$LEASE_ID" -t $((100 * 60))
-      echo @@
+      export RUN_ID="${WERCKER_STEP_ID}-pid$$"
 
       export HOST_PATH="/scratch"
       export PV_ROOT=$HOST_PATH
       export RESULT_ROOT="$WERCKER_OUTPUT_DIR/k8s_dir"
       mkdir -m 777 -p $RESULT_ROOT
       export PROJECT_ROOT="${WERCKER_SOURCE_DIR}"
-      $WERCKER_SOURCE_DIR/src/integration-tests/bash/cleanup.sh
 
       export IMAGE_NAME_OPERATOR="${REPO_REPOSITORY}"
       export IMAGE_TAG_OPERATOR="${WERCKER_GIT_BRANCH//[_\/]/-}"

@@ -16,9 +16,6 @@
 #   PV_ROOT      The root directory on the kubernetes cluster
 #                used for persistent volumes.
 #
-#   LEASE_ID     Set this if you want cleanup to release the 
-#                given lease on a failure.
-#
 #   WERCKER      Set this to true if you want cleanup to delete
 #                tiller (the WERCKER path in run.sh sets up tiller).
 #
@@ -44,9 +41,6 @@
 #             on the kubernetes cluster.
 #
 #   Phase 4:  Delete the local test output directory.
-#
-#   Phase 5:  If we own a lease, then release it on a failure.
-#             (See optional LEASE_ID env var above.)
 #
 
 SCRIPTPATH="$( cd "$(dirname "$0")" > /dev/null 2>&1 ; pwd -P )"
@@ -355,18 +349,6 @@ echo @@ Deleting /tmp/test_suite.\* files.
 rm -f /tmp/test_suite.*
 
 # Bye
-
-if [ ! "$LEASE_ID" = "" ] && [ ! "$SUCCESS" = "0" ]; then
-  # release the lease if we own it
-  ${SCRIPTPATH}/lease.sh -d "$LEASE_ID" > /tmp/release_lease.out 2>&1
-  if [ "$?" = "0" ]; then
-    echo @@ Lease released.
-  else
-    echo @@ Lease could not be released:
-    cat /tmp/release_lease.out
-  fi
-  rm -f /tmp/release_lease.out
-fi
 
 echo @@ Exiting with status $SUCCESS
 exit $SUCCESS
