@@ -643,23 +643,8 @@ public class TestUtils {
     return result.stdout().trim();
   }
 
-  public static void createDirUnderDomainPV(String dirPath) throws Exception {
-
-    String crdCmd =
-        BaseTest.getProjectRoot()
-            + "/src/integration-tests/bash/job.sh \"mkdir -p "
-            + dirPath
-            + "\"";
-    ExecResult result = ExecCommand.exec(crdCmd);
-    if (result.exitValue() != 0) {
-      throw new RuntimeException(
-          "FAILURE: command to create domain scripts directory "
-              + crdCmd
-              + " failed, returned "
-              + result.stdout()
-              + result.stderr());
-    }
-    logger.info("command result " + result.stdout().trim());
+  public static void createDirUnderDomainPV(String dirPath, String podName, String domainNS) throws Exception {
+    kubectlexec(podName, domainNS, "mkdir -p " + dirPath);
   }
 
   public static void createWLDFModule(String adminPodName, String domainNS, int t3ChannelPort)

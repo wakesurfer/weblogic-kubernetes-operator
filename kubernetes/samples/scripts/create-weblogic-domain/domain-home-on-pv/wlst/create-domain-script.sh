@@ -5,6 +5,7 @@
 # Include common utility functions
 source ${CREATE_DOMAIN_SCRIPT_DIR}/utility.sh
 
+mkdir -p ${DOMAIN_HOME_DIR}
 export DOMAIN_HOME=${DOMAIN_HOME_DIR}
 
 # Create the domain

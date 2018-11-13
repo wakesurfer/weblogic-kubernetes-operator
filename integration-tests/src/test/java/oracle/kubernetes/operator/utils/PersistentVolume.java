@@ -22,22 +22,6 @@ public class PersistentVolume {
     this.dirPath = dirPath;
     this.pvMap = pvMap;
 
-    String cmd =
-        BaseTest.getProjectRoot()
-            + "/src/integration-tests/bash/job.sh \"mkdir -p "
-            + dirPath
-            + "\"";
-    ExecResult result = ExecCommand.exec(cmd);
-    if (result.exitValue() != 0) {
-      throw new RuntimeException(
-          "FAILURE: command to create domain PV directory "
-              + cmd
-              + " failed, returned "
-              + result.stdout()
-              + result.stderr());
-    }
-    logger.info("command result " + result.stdout().trim());
-
     Path parentDir =
         pvMap.get("domainUID") != null
             ? Files.createDirectories(
@@ -59,7 +43,7 @@ public class PersistentVolume {
             + BaseTest.getUserProjectsDir();
     logger.info("Executing cmd " + cmdPvPvc);
 
-    result = ExecCommand.exec(cmdPvPvc);
+    ExecResult result = ExecCommand.exec(cmdPvPvc);
     if (result.exitValue() != 0) {
       throw new RuntimeException(
           "FAILURE: command to create PV/PVC "

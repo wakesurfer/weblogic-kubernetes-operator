@@ -553,10 +553,14 @@ public class Domain {
     weblogicDomainStorageReclaimPolicy = (String) pvMap.get("weblogicDomainStorageReclaimPolicy");
     weblogicDomainStorageSize = (String) pvMap.get("weblogicDomainStorageSize");
 
-    // test NFS for domain5 on JENKINS
-    if (domainUid.equals("domain5")
+    if (System.getenv("WERCKER") != null) {
+      // Will always use NFS for Wercker
+      pvMap.put("weblogicDomainStorageType", "NFS");
+      pvMap.put("weblogicDomainStorageNFSServer", System.getenv("OKE_NFS_IP"));
+    } else if (domainUid.equals("domain5")
         && (System.getenv("JENKINS") != null
             && System.getenv("JENKINS").equalsIgnoreCase("true"))) {
+      // test NFS for domain5 on JENKINS
       pvMap.put("weblogicDomainStorageType", "NFS");
       pvMap.put("weblogicDomainStorageNFSServer", TestUtils.getHostName());
     } else {

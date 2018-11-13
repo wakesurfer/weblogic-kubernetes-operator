@@ -395,7 +395,7 @@ public class BaseTest {
       String dirPathToCreate, String domainUID, String podName, String domainNS) throws Exception {
 
     // create scripts dir under domain pv
-    TestUtils.createDirUnderDomainPV(dirPathToCreate);
+    TestUtils.createDirUnderDomainPV(dirPathToCreate, podName, domainNS);
 
     // copy script to pod
     TestUtils.kubectlcp(
