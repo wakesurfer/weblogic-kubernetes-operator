@@ -643,7 +643,8 @@ public class TestUtils {
     return result.stdout().trim();
   }
 
-  public static void createDirUnderDomainPV(String dirPath, String podName, String domainNS) throws Exception {
+  public static void createDirUnderDomainPV(String dirPath, String podName, String domainNS)
+      throws Exception {
     kubectlexec(podName, domainNS, "mkdir -p " + dirPath);
   }
 
