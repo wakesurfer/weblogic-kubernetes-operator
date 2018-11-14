@@ -348,12 +348,7 @@ public class Domain {
     }
   }
 
-  /**
-   * startup the domain
-   *
-   * @throws Exception
-   */
-  public void create() throws Exception {
+  public void xyz() throws Exception {
     try {
       StringBuffer command = new StringBuffer();
       command.append("kubectl get jobs ").append(" -n ").append(domainNS);
@@ -393,6 +388,14 @@ public class Domain {
     } catch (Throwable t) {
       // ignore
     }
+  }
+  /**
+   * startup the domain
+   *
+   * @throws Exception
+   */
+  public void create() throws Exception {
+    xyz();
     StringBuffer cmd = new StringBuffer("kubectl create -f ");
     cmd.append(userProjectsDir)
         .append("/weblogic-domains/")

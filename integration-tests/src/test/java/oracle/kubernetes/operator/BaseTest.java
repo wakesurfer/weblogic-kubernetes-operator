@@ -213,6 +213,7 @@ public class BaseTest {
 
     logger.info(
         "Scale domain " + domain.getDomainUid() + " Up to " + replicas + " managed servers");
+    domain.xyz();
     operator.scale(domainUid, domainMap.get("clusterName").toString(), replicas);
 
     logger.info("Checking if managed pod(" + podName + ") is Running");
