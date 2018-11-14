@@ -1,4 +1,4 @@
-# Copyright 2017, 2018, Oracle Corporation and/or its affiliates. All rights reserved.
+# Copyright 2018, Oracle Corporation and/or its affiliates. All rights reserved.
 # Licensed under the Universal Permissive License v 1.0 as shown at http://oss.oracle.com/licenses/upl.
 #
 # ------------
@@ -622,7 +622,6 @@ class SitConfigGenerator(Generator):
     self.writeln("<?xml version='1.0' encoding='UTF-8'?>")
     self.writeln("<d:domain xmlns:d=\"http://xmlns.oracle.com/weblogic/domain\" xmlns:f=\"http://xmlns.oracle.com/weblogic/domain-fragment\" xmlns:s=\"http://xmlns.oracle.com/weblogic/situational-config\">")
     self.indent()
-    self.writeln("<s:expiration> 2999-07-16T19:20+01:00 </s:expiration>")
     self.customizeNodeManagerCreds()
     self.customizeDomainLogPath()
     self.customizeServers()
