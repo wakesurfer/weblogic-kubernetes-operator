@@ -644,10 +644,40 @@ class SitConfigGenerator(Generator):
   def customizeServer(self, server):
     name=server.getName()
     listen_address=self.env.toDNS1123Legal(self.env.getDomainUID() + "-" + name)
+    listen_port="FIGURE OUT"
     self.writeln("<d:server>")
     self.indent()
     self.writeln("<d:name>" + name + "</d:name>")
     self.writeln("<d:listen-address f:combine-mode=\"replace\">" + listen_address + "</d:listen-address>")
+    self.writeln("<d:listen-port f:combine-mode=\"replace\">" + listen_port + "</d:listen-port>")
+    if server.getSSL():
+        ssl_name=nap.getName()
+        ssl_enabled="FIGURE OUT"
+        ssl_listen_port="FIGURE OUT"
+        self.writeln("<d:ssl>")
+        self.indent()
+        self.writeln("<d:name f:combine-mode=\"replace\">" + ssl_name + "</d:name>")
+        self.writeln("<d:enabled f:combine-mode=\"replace\">" + ssl_enabled + "</d:enabled>")
+        self.writeln("<d:listen-port f:combine-mode=\"replace\">" + ssl_listen_port + "</d:listen-port>")
+        self.undent()
+        self.writeln("</d:ssl>")
+    for nap in server.getAccessPoints():
+        nap_name=nap.getName()
+        nap_protocol="FIGURE OUT"
+        nap_public_address="FIGURE OUT"
+        nap_listen_port="FIGURE OUT"
+        nap_public_port="FIGURE OUT"
+        nap_tunneling_enabled="FIGURE OUT"
+        self.writeln("<d:network-access-point>")
+        self.indent()
+        self.writeln("<d:name f:combine-mode=\"replace\">" + nap_name + "</d:name>")
+        self.writeln("<d:protocol f:combine-mode=\"replace\">" + nap_protocol + "</d:protocol>")
+        self.writeln("<d:public-address f:combine-mode=\"replace\">" + nap_public_address + "</d:public-address>")
+        self.writeln("<d:listen-port f:combine-mode=\"replace\">" + nap_listen_port + "</d:listen-port>")
+        self.writeln("<d:public-port f:combine-mode=\"replace\">" + nap_public_port + "</d:public-port>")
+        self.writeln("<d:tunneling-enabled f:combine-mode=\"replace\">" + nap_tunneling_enabled + "</d:tunneling-enabled>")
+        self.undent()
+        self.writeln("</d:network-access-point>")
     self.customizeLog(name)
     self.undent()
     self.writeln("</d:server>")
