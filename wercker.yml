@@ -81,7 +81,7 @@ command-timeout: 60
 integration-test-java:
   steps:
   - script:
-    name: obtain lease on k8s cluster
+    name: Install pre-reqs
     code: |
       #!/bin/bash
 
@@ -149,9 +149,6 @@ integration-test-java:
       echo "Integration test suite running for test image: $IMAGE_NAME_OPERATOR:$IMAGE_TAG_OPERATOR"
       echo "WebLogic version is: $IMAGE_NAME_WEBLOGIC:$IMAGE_TAG_WEBLOGIC"
 
-  - script:
-    name: Install pre-reqs
-    code: |
       yum -y install tar gzip procps
       helm init --upgrade
 
