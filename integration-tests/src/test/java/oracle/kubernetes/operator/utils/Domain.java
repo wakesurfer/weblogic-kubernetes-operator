@@ -567,18 +567,25 @@ public class Domain {
       pvMap.put("weblogicDomainStorageType", "HOST_PATH");
       pvMap.put("weblogicDomainStorageNFSServer", TestUtils.getHostName());
     }
+    
     // set pv path
-    domainMap.put(
-        "weblogicDomainStoragePath",
-        BaseTest.getPvRoot() + "/acceptance_test_pv/persistentVolume-" + domainUid);
+    String base = BaseTest.getPvRoot();
+    if (System.getenv("WERCKER") != null) {
+      if (System.getenv("OKE_NFS_PATH") != null) {
+        base = System.getenv("OKE_NFS_PATH");
+        
+        domainMap.put(
+            "domainPVMountPath",
+            "/shared/acceptance_test_pv/persistentVolume-" + domainUid);
+      }
+    }
 
     pvMap.put(
         "weblogicDomainStoragePath",
-        BaseTest.getPvRoot() + "/acceptance_test_pv/persistentVolume-" + domainUid);
+        base + "/acceptance_test_pv/persistentVolume-" + domainUid);
 
     pvMap.values().removeIf(Objects::isNull);
-    // k8s job mounts PVROOT /scratch/<usr>/wl_k8s_test_results to /scratch, create PV/PVC
-    new PersistentVolume("/scratch/acceptance_test_pv/persistentVolume-" + domainUid, pvMap);
+    new PersistentVolume(pvMap);
   }
 
   private void createSecret() throws Exception {

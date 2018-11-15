@@ -14,12 +14,10 @@ import oracle.kubernetes.operator.BaseTest;
 public class PersistentVolume {
 
   private Map<String, Object> pvMap;
-  private String dirPath;
 
   private static final Logger logger = Logger.getLogger("OperatorIT", "OperatorIT");
 
-  public PersistentVolume(String dirPath, Map pvMap) throws Exception {
-    this.dirPath = dirPath;
+  public PersistentVolume(Map pvMap) throws Exception {
     this.pvMap = pvMap;
 
     Path parentDir =
@@ -53,10 +51,6 @@ public class PersistentVolume {
               + result.stderr());
     }
     logger.info("command result " + result.stdout().trim());
-  }
-
-  public String getDirPath() {
-    return dirPath;
   }
 
   public Map getPvMap() {
