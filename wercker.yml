@@ -40,12 +40,14 @@ build:
     code: |
       #!/bin/bash
       echo @@ "Helm installation starts"
-      curl -LO http://kubernetes-helm.storage.googleapis.com/helm-v2.8.2-linux-amd64.tar.gz
+      export HELM_VERSION=${HELM_VERSION:-v2.11.0}
+      curl -LO http://kubernetes-helm.storage.googleapis.com/helm-${HELM_VERSION}-linux-amd64.tar.gz
       mkdir /tmp/helm
-      tar xzf helm-v2.8.2-linux-amd64.tar.gz -C /tmp/helm
+      tar xzf helm-${HELM_VERSION}-linux-amd64.tar.gz -C /tmp/helm
       chmod +x /tmp/helm/linux-amd64/helm
       mv /tmp/helm/linux-amd64/helm /usr/local/bin/
       rm -rf /tmp/helm
+      helm version
       echo @@ "Helm is installed."
   - wercker/maven:
     goals: clean install
@@ -125,7 +127,6 @@ integration-test-java:
       chmod +x /tmp/helm/linux-amd64/helm
       mv /tmp/helm/linux-amd64/helm /usr/local/bin/
       rm -rf /tmp/helm
-      helm init --upgrade
       helm version
       echo @@ "Helm is installed."
 
@@ -152,6 +153,7 @@ integration-test-java:
     name: Install pre-reqs
     code: |
       yum -y install tar gzip procps
+      helm init --upgrade
 
   - wercker/maven:
     goals: clean verify
