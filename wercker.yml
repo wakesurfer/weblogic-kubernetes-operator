@@ -150,7 +150,6 @@ integration-test-java:
       echo "WebLogic version is: $IMAGE_NAME_WEBLOGIC:$IMAGE_TAG_WEBLOGIC"
 
       yum -y install tar gzip procps
-      helm init --upgrade
 
   - wercker/maven:
     goals: clean verify
