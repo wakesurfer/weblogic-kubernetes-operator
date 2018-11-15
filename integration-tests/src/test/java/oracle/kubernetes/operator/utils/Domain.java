@@ -567,22 +567,20 @@ public class Domain {
       pvMap.put("weblogicDomainStorageType", "HOST_PATH");
       pvMap.put("weblogicDomainStorageNFSServer", TestUtils.getHostName());
     }
-    
+
     // set pv path
     String base = BaseTest.getPvRoot();
     if (System.getenv("WERCKER") != null) {
       if (System.getenv("OKE_NFS_PATH") != null) {
         base = System.getenv("OKE_NFS_PATH");
-        
+
         domainMap.put(
-            "domainPVMountPath",
-            "/shared/acceptance_test_pv/persistentVolume-" + domainUid);
+            "domainPVMountPath", "/shared/acceptance_test_pv/persistentVolume-" + domainUid);
       }
     }
 
     pvMap.put(
-        "weblogicDomainStoragePath",
-        base + "/acceptance_test_pv/persistentVolume-" + domainUid);
+        "weblogicDomainStoragePath", base + "/acceptance_test_pv/persistentVolume-" + domainUid);
 
     pvMap.values().removeIf(Objects::isNull);
     new PersistentVolume(pvMap);
