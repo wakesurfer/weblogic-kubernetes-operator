@@ -655,7 +655,7 @@ class SitConfigGenerator(Generator):
         self.writeln("<d:listen-address f:combine-mode=\"replace\">" + listen_address + "</d:listen-address>")
         self.undent()
         self.writeln("</d:ssl>")
-    for nap in server.getAccessPoints():
+    for nap in server.getNetworkAccessPoints():
         nap_name=nap.getName()
         self.writeln("<d:network-access-point>")
         self.indent()
