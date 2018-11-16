@@ -62,7 +62,8 @@ public class ServerKubernetesObjectsLookupTest {
   public void whenK8sHasDomainWithOneServer_canLookupFromServerKubernetesObjectsFactory() {
     Domain domain = createDomain("UID1", "ns1");
     DomainPresenceInfo info = DomainPresenceInfoManager.getOrCreate(domain);
-
+    assertThat(
+        "DomainPresenceInfo already has servers!", info.getServers(), is(anEmptyMap())); // debug-
     ServerKubernetesObjects sko = ServerKubernetesObjectsManager.getOrCreate(info, "admin");
 
     assertThat(info.getServers(), hasEntry(equalTo("admin"), sameInstance(sko)));
