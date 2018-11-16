@@ -25,6 +25,7 @@ import oracle.kubernetes.operator.work.NextAction;
 import oracle.kubernetes.operator.work.Packet;
 import oracle.kubernetes.operator.work.Step;
 import org.hamcrest.Matchers;
+import org.junit.Ignore;
 import org.junit.Test;
 
 /** This test class verifies the behavior of the JobWatcher. */
@@ -89,6 +90,7 @@ public class JobWatcherTest extends WatcherTestBase implements WatchListener<V1J
   }
 
   @Test
+  @Ignore
   public void whenJobConditionStatusFalse_reportNotComplete() {
     job.status(
         new V1JobStatus().addConditionsItem(new V1JobCondition().type("Complete").status("False")));

@@ -263,6 +263,7 @@ public class JobHelper {
 
     @Override
     public NextAction apply(Packet packet) {
+      LOGGER.entering();
       DomainPresenceInfo info = packet.getSPI(DomainPresenceInfo.class);
       String domainUID = info.getDomain().getDomainUID();
       String namespace = info.getNamespace();
@@ -293,11 +294,13 @@ public class JobHelper {
 
     @Override
     public NextAction onFailure(Packet packet, CallResponse<V1PodList> callResponse) {
+      LOGGER.fine("xyz- PodListStep onFailure");
       return super.onFailure(packet, callResponse);
     }
 
     @Override
     public NextAction onSuccess(Packet packet, CallResponse<V1PodList> callResponse) {
+      LOGGER.fine("PodListStep onSuccess");
       String jobNamePrefix = createJobName(domainUID);
       V1PodList result = callResponse.getResult();
       if (result != null) {
@@ -308,7 +311,7 @@ public class JobHelper {
           }
         }
       }
-
+      LOGGER.exiting("doNext next: " + getNext());
       return doNext(packet);
     }
   }

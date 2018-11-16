@@ -95,21 +95,24 @@ public class JobWatcher extends Watcher<V1Job> implements WatchListener<V1Job> {
 
   public static boolean isComplete(V1Job job) {
     V1JobStatus status = job.getStatus();
-    LOGGER.info(MessageKeys.JOB_IS_COMPLETE, job.getMetadata().getName(), status);
+    LOGGER.entering();
     if (status != null) {
       List<V1JobCondition> conds = status.getConditions();
       if (conds != null) {
         for (V1JobCondition cond : conds) {
           if ("Complete".equals(cond.getType())) {
-            if ("True".equals(cond.getStatus())) { // TODO: Verify V1JobStatus.succeeded count?
-              // Job is complete!
-              LOGGER.info(MessageKeys.JOB_IS_COMPLETE, job.getMetadata().getName());
-              return true;
-            }
+            //       if ("True".equals(cond.getStatus())) { // TODO: Verify V1JobStatus.succeeded
+            // count?
+            // Job is complete!
+            LOGGER.info(MessageKeys.JOB_IS_COMPLETE, job.getMetadata().getName(), status);
+            LOGGER.exiting(true);
+            return true;
           }
         }
+        // }
       }
     }
+    LOGGER.exiting(false);
     return false;
   }
 
@@ -218,7 +221,10 @@ public class JobWatcher extends Watcher<V1Job> implements WatchListener<V1Job> {
                                   }
                                 }
                                 LOGGER.fine(
-                                    "xyz- WaitForJobReadyStep calling doNext on packet: " + packet);
+                                    "xyz- WaitForJobReadyStep calling doNext: "
+                                        + getNext()
+                                        + ", on packet: "
+                                        + packet);
                                 return doNext(packet);
                               }
                             }),
