@@ -684,10 +684,10 @@ public class Main {
   // pre-conditions: DomainPresenceInfo SPI
   // "principal"
   private static Step bringAdminServerUp(DomainPresenceInfo info, Step next) {
-    return StorageHelper.insertStorageSteps(info, Step.chain(bringAdminServerUpSteps(next, info)));
+    return StorageHelper.insertStorageSteps(info, Step.chain(bringAdminServerUpSteps(info, next)));
   }
 
-  private static Step[] bringAdminServerUpSteps(Step next, DomainPresenceInfo info) {
+  private static Step[] bringAdminServerUpSteps(DomainPresenceInfo info, Step next) {
     ArrayList<Step> resources = new ArrayList<>();
     resources.add(new ListPersistentVolumeClaimStep(null));
     resources.add(
