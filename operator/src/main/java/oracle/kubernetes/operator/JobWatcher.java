@@ -35,8 +35,8 @@ public class JobWatcher extends Watcher<V1Job> implements WatchListener<V1Job> {
 
   private final String ns;
 
-  // Map of Pod name to IsComplete
-  private final ConcurrentMap<String, IsComplete> readyCallbackRegistrations =
+  // Map of Pod name to Complete
+  private final ConcurrentMap<String, Complete> completeCallbackRegistrations =
       new ConcurrentHashMap<>();
 
   /**
@@ -79,7 +79,7 @@ public class JobWatcher extends Watcher<V1Job> implements WatchListener<V1Job> {
         Boolean isComplete = isComplete(job); // isReady(job);
         String jobName = job.getMetadata().getName();
         if (isComplete) {
-          IsComplete complete = readyCallbackRegistrations.remove(jobName);
+          Complete complete = completeCallbackRegistrations.remove(jobName);
           if (complete != null) {
             complete.isComplete(job);
           }
@@ -93,39 +93,6 @@ public class JobWatcher extends Watcher<V1Job> implements WatchListener<V1Job> {
     LOGGER.exiting();
   }
 
-  //  public static boolean isReady(V1Job job) {
-  //    V1JobStatus status = job.getStatus();
-  //    LOGGER.fine("++++ JobWatcher.isReady status: " + status);
-  //    if (status != null) {
-  //      List<V1JobCondition> conds = status.getConditions();
-  //      if (conds != null) {
-  //        for (V1JobCondition cond : conds) {
-  //          if ("Complete".equals(cond.getType())) {
-  //            if ("True".equals(cond.getStatus())) { // TODO: Verify V1JobStatus.succeeded count?
-  //              // Job is complete!
-  //              LOGGER.info(MessageKeys.JOB_IS_READY, job.getMetadata().getName());
-  //              LOGGER.exiting(true);
-  //              return true;
-  //            }
-  //          }
-  //        }
-  //      }
-  //    }
-  //    LOGGER.exiting(false);
-  //    return false;
-  //  }
-
-  public static boolean isFailed(V1Job job) {
-    V1JobStatus status = job.getStatus();
-    if (status != null) {
-      if (status.getFailed() != null && status.getFailed() > 0) {
-        LOGGER.severe(MessageKeys.JOB_IS_FAILED, job.getMetadata().getName());
-        return true;
-      }
-    }
-    return false;
-  }
-
   public static boolean isComplete(V1Job job) {
     V1JobStatus status = job.getStatus();
     LOGGER.info(MessageKeys.JOB_IS_COMPLETE, job.getMetadata().getName(), status);
@@ -136,14 +103,24 @@ public class JobWatcher extends Watcher<V1Job> implements WatchListener<V1Job> {
           if ("Complete".equals(cond.getType())) {
             if ("True".equals(cond.getStatus())) { // TODO: Verify V1JobStatus.succeeded count?
               // Job is complete!
-              LOGGER.exiting(true);
+              LOGGER.info(MessageKeys.JOB_IS_COMPLETE, job.getMetadata().getName());
               return true;
             }
           }
         }
       }
     }
-    LOGGER.exiting(false);
+    return false;
+  }
+
+  public static boolean isFailed(V1Job job) {
+    V1JobStatus status = job.getStatus();
+    if (status != null) {
+      if (status.getFailed() != null && status.getFailed() > 0) {
+        LOGGER.severe(MessageKeys.JOB_IS_FAILED, job.getMetadata().getName());
+        return true;
+      }
+    }
     return false;
   }
 
@@ -170,6 +147,7 @@ public class JobWatcher extends Watcher<V1Job> implements WatchListener<V1Job> {
     public NextAction apply(Packet packet) {
       LOGGER.entering();
       if (isComplete(job)) {
+        LOGGER.exiting("xyz- WaitForJobReadyStep job already completed");
         return doNext(packet);
       }
 
@@ -180,17 +158,23 @@ public class JobWatcher extends Watcher<V1Job> implements WatchListener<V1Job> {
       AtomicBoolean didResume = new AtomicBoolean(false);
       return doSuspend(
           (fiber) -> {
-            IsComplete complete =
+            Complete complete =
                 (V1Job job) -> {
                   LOGGER.entering();
                   if (didResume.compareAndSet(false, true)) {
-                    LOGGER.fine("Job status: " + job.getStatus());
+                    LOGGER.fine(
+                        "WaitForJobReadyStep: Job status: "
+                            + job.getStatus()
+                            + ", resuming fiber: "
+                            + fiber
+                            + ", next step is: "
+                            + getNext());
                     packet.put(ProcessingConstants.DOMAIN_INTROSPECTOR_JOB, job);
                     fiber.resume(packet);
                   }
                   LOGGER.exiting();
                 };
-            readyCallbackRegistrations.put(metadata.getName(), complete);
+            completeCallbackRegistrations.put(metadata.getName(), complete);
 
             // Timing window -- job may have come ready before registration for callback
             CallBuilderFactory factory =
@@ -225,10 +209,11 @@ public class JobWatcher extends Watcher<V1Job> implements WatchListener<V1Job> {
                                 LOGGER.entering();
                                 if (result != null && isComplete(result) /*isReady(result)*/) {
                                   if (didResume.compareAndSet(false, true)) {
-                                    readyCallbackRegistrations.remove(metadata.getName(), complete);
                                     LOGGER.fine(
-                                        "xyz- WaitForJobReadyStep calling fiber.resume() on packet: "
-                                            + packet);
+                                        "xyz- WaitForJobReadyStep calling fiber.resume() on fiber: "
+                                            + fiber);
+                                    completeCallbackRegistrations.remove(
+                                        metadata.getName(), complete);
                                     fiber.resume(packet);
                                   }
                                 }
@@ -243,8 +228,7 @@ public class JobWatcher extends Watcher<V1Job> implements WatchListener<V1Job> {
     }
   }
 
-  @FunctionalInterface
-  private interface IsComplete {
+  private interface Complete {
     void isComplete(V1Job job);
   }
 }

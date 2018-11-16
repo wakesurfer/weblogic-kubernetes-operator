@@ -70,26 +70,26 @@ public class JobWatcherTest extends WatcherTestBase implements WatchListener<V1J
   }
 
   @Test
-  public void whenJobHasNoStatus_reportNotReady() {
+  public void whenJobHasNoStatus_reportNotComplete() {
     assertThat(JobWatcher.isComplete(job), is(false));
   }
 
   @Test
-  public void whenJobHasNoCondition_reportNotReady() {
+  public void whenJobHasNoCondition_reportNotComplete() {
     job.status(new V1JobStatus());
 
     assertThat(JobWatcher.isComplete(job), is(false));
   }
 
   @Test
-  public void whenJobConditionTypeFailed_reportNotReady() {
+  public void whenJobConditionTypeFailed_reportNotComplete() {
     job.status(new V1JobStatus().addConditionsItem(new V1JobCondition().type("Failed")));
 
     assertThat(JobWatcher.isComplete(job), is(false));
   }
 
   @Test
-  public void whenJobConditionStatusFalse_reportNotReady() {
+  public void whenJobConditionStatusFalse_reportNotComplete() {
     job.status(
         new V1JobStatus().addConditionsItem(new V1JobCondition().type("Complete").status("False")));
 
@@ -97,7 +97,7 @@ public class JobWatcherTest extends WatcherTestBase implements WatchListener<V1J
   }
 
   @Test
-  public void whenJobRunningAndReadyConditionIsTrue_reportReady() {
+  public void whenJobRunningAndReadyConditionIsTrue_reportComplete() {
     makeJobReady(job);
 
     assertThat(JobWatcher.isComplete(job), is(true));
