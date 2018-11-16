@@ -35,8 +35,8 @@ public class JobWatcher extends Watcher<V1Job> implements WatchListener<V1Job> {
 
   private final String ns;
 
-  // Map of Pod name to OnReady
-  private final ConcurrentMap<String, OnReady> readyCallbackRegistrations =
+  // Map of Pod name to IsComplete
+  private final ConcurrentMap<String, IsComplete> readyCallbackRegistrations =
       new ConcurrentHashMap<>();
 
   /**
@@ -79,9 +79,9 @@ public class JobWatcher extends Watcher<V1Job> implements WatchListener<V1Job> {
         Boolean isComplete = isComplete(job); // isReady(job);
         String jobName = job.getMetadata().getName();
         if (isComplete) {
-          OnReady ready = readyCallbackRegistrations.remove(jobName);
-          if (ready != null) {
-            ready.onReady(job);
+          IsComplete complete = readyCallbackRegistrations.remove(jobName);
+          if (complete != null) {
+            complete.isComplete(job);
           }
         }
         break;
@@ -93,27 +93,27 @@ public class JobWatcher extends Watcher<V1Job> implements WatchListener<V1Job> {
     LOGGER.exiting();
   }
 
-  public static boolean isReady(V1Job job) {
-    V1JobStatus status = job.getStatus();
-    LOGGER.fine("++++ JobWatcher.isReady status: " + status);
-    if (status != null) {
-      List<V1JobCondition> conds = status.getConditions();
-      if (conds != null) {
-        for (V1JobCondition cond : conds) {
-          if ("Complete".equals(cond.getType())) {
-            if ("True".equals(cond.getStatus())) { // TODO: Verify V1JobStatus.succeeded count?
-              // Job is complete!
-              LOGGER.info(MessageKeys.JOB_IS_READY, job.getMetadata().getName());
-              LOGGER.exiting(true);
-              return true;
-            }
-          }
-        }
-      }
-    }
-    LOGGER.exiting(false);
-    return false;
-  }
+  //  public static boolean isReady(V1Job job) {
+  //    V1JobStatus status = job.getStatus();
+  //    LOGGER.fine("++++ JobWatcher.isReady status: " + status);
+  //    if (status != null) {
+  //      List<V1JobCondition> conds = status.getConditions();
+  //      if (conds != null) {
+  //        for (V1JobCondition cond : conds) {
+  //          if ("Complete".equals(cond.getType())) {
+  //            if ("True".equals(cond.getStatus())) { // TODO: Verify V1JobStatus.succeeded count?
+  //              // Job is complete!
+  //              LOGGER.info(MessageKeys.JOB_IS_READY, job.getMetadata().getName());
+  //              LOGGER.exiting(true);
+  //              return true;
+  //            }
+  //          }
+  //        }
+  //      }
+  //    }
+  //    LOGGER.exiting(false);
+  //    return false;
+  //  }
 
   public static boolean isFailed(V1Job job) {
     V1JobStatus status = job.getStatus();
@@ -134,9 +134,11 @@ public class JobWatcher extends Watcher<V1Job> implements WatchListener<V1Job> {
       if (conds != null) {
         for (V1JobCondition cond : conds) {
           if ("Complete".equals(cond.getType())) {
-            // Job is complete!
-            LOGGER.exiting(true);
-            return true;
+            if ("True".equals(cond.getStatus())) { // TODO: Verify V1JobStatus.succeeded count?
+              // Job is complete!
+              LOGGER.exiting(true);
+              return true;
+            }
           }
         }
       }
@@ -178,7 +180,7 @@ public class JobWatcher extends Watcher<V1Job> implements WatchListener<V1Job> {
       AtomicBoolean didResume = new AtomicBoolean(false);
       return doSuspend(
           (fiber) -> {
-            OnReady ready =
+            IsComplete complete =
                 (V1Job job) -> {
                   LOGGER.entering();
                   if (didResume.compareAndSet(false, true)) {
@@ -188,7 +190,7 @@ public class JobWatcher extends Watcher<V1Job> implements WatchListener<V1Job> {
                   }
                   LOGGER.exiting();
                 };
-            readyCallbackRegistrations.put(metadata.getName(), ready);
+            readyCallbackRegistrations.put(metadata.getName(), complete);
 
             // Timing window -- job may have come ready before registration for callback
             CallBuilderFactory factory =
@@ -208,7 +210,9 @@ public class JobWatcher extends Watcher<V1Job> implements WatchListener<V1Job> {
                                   ApiException e,
                                   int statusCode,
                                   Map<String, List<String>> responseHeaders) {
-                                LOGGER.entering();
+                                LOGGER.fine(
+                                    "xyz- WaitForJobReadyStep calling onFailure() on packet: "
+                                        + packet);
                                 return super.onFailure(packet, e, statusCode, responseHeaders);
                               }
 
@@ -221,12 +225,15 @@ public class JobWatcher extends Watcher<V1Job> implements WatchListener<V1Job> {
                                 LOGGER.entering();
                                 if (result != null && isComplete(result) /*isReady(result)*/) {
                                   if (didResume.compareAndSet(false, true)) {
-                                    readyCallbackRegistrations.remove(metadata.getName(), ready);
-                                    LOGGER.fine("xyz- calling fiber.resume() on packet: " + packet);
+                                    readyCallbackRegistrations.remove(metadata.getName(), complete);
+                                    LOGGER.fine(
+                                        "xyz- WaitForJobReadyStep calling fiber.resume() on packet: "
+                                            + packet);
                                     fiber.resume(packet);
                                   }
                                 }
-                                LOGGER.fine("xyz- calling doNext on packet: " + packet);
+                                LOGGER.fine(
+                                    "xyz- WaitForJobReadyStep calling doNext on packet: " + packet);
                                 return doNext(packet);
                               }
                             }),
@@ -237,7 +244,7 @@ public class JobWatcher extends Watcher<V1Job> implements WatchListener<V1Job> {
   }
 
   @FunctionalInterface
-  private interface OnReady {
-    void onReady(V1Job job);
+  private interface IsComplete {
+    void isComplete(V1Job job);
   }
 }
