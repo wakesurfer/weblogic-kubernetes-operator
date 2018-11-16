@@ -344,6 +344,8 @@ public class ConfigMapHelper {
 
       @Override
       public NextAction onSuccess(Packet packet, CallResponse<V1ConfigMap> callResponse) {
+        LOGGER.entering();
+
         V1ConfigMap existingMap = callResponse.getResult();
         if (existingMap == null) {
           return doNext(createConfigMap(getNext()), packet);
@@ -368,6 +370,7 @@ public class ConfigMapHelper {
 
       @Override
       public NextAction onFailure(Packet packet, CallResponse<V1ConfigMap> callResponse) {
+        LOGGER.entering();
         return super.onFailure(conflictStep, packet, callResponse);
       }
 

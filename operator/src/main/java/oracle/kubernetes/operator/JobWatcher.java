@@ -104,12 +104,14 @@ public class JobWatcher extends Watcher<V1Job> implements WatchListener<V1Job> {
             if ("True".equals(cond.getStatus())) { // TODO: Verify V1JobStatus.succeeded count?
               // Job is complete!
               LOGGER.info(MessageKeys.JOB_IS_READY, job.getMetadata().getName());
+              LOGGER.exiting(true);
               return true;
             }
           }
         }
       }
     }
+    LOGGER.exiting(false);
     return false;
   }
 
@@ -133,11 +135,13 @@ public class JobWatcher extends Watcher<V1Job> implements WatchListener<V1Job> {
         for (V1JobCondition cond : conds) {
           if ("Complete".equals(cond.getType())) {
             // Job is complete!
+            LOGGER.exiting(true);
             return true;
           }
         }
       }
     }
+    LOGGER.exiting(false);
     return false;
   }
 
@@ -162,6 +166,7 @@ public class JobWatcher extends Watcher<V1Job> implements WatchListener<V1Job> {
 
     @Override
     public NextAction apply(Packet packet) {
+      LOGGER.entering();
       if (isComplete(job)) {
         return doNext(packet);
       }
@@ -175,11 +180,13 @@ public class JobWatcher extends Watcher<V1Job> implements WatchListener<V1Job> {
           (fiber) -> {
             OnReady ready =
                 (V1Job job) -> {
+                  LOGGER.entering();
                   if (didResume.compareAndSet(false, true)) {
                     LOGGER.fine("Job status: " + job.getStatus());
                     packet.put(ProcessingConstants.DOMAIN_INTROSPECTOR_JOB, job);
                     fiber.resume(packet);
                   }
+                  LOGGER.exiting();
                 };
             readyCallbackRegistrations.put(metadata.getName(), ready);
 
@@ -201,6 +208,7 @@ public class JobWatcher extends Watcher<V1Job> implements WatchListener<V1Job> {
                                   ApiException e,
                                   int statusCode,
                                   Map<String, List<String>> responseHeaders) {
+                                LOGGER.entering();
                                 return super.onFailure(packet, e, statusCode, responseHeaders);
                               }
 
@@ -210,12 +218,15 @@ public class JobWatcher extends Watcher<V1Job> implements WatchListener<V1Job> {
                                   V1Job result,
                                   int statusCode,
                                   Map<String, List<String>> responseHeaders) {
+                                LOGGER.entering();
                                 if (result != null && isComplete(result) /*isReady(result)*/) {
                                   if (didResume.compareAndSet(false, true)) {
                                     readyCallbackRegistrations.remove(metadata.getName(), ready);
+                                    LOGGER.fine("xyz- calling fiber.resume() on packet: " + packet);
                                     fiber.resume(packet);
                                   }
                                 }
+                                LOGGER.fine("xyz- calling doNext on packet: " + packet);
                                 return doNext(packet);
                               }
                             }),

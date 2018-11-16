@@ -28,7 +28,8 @@ import oracle.kubernetes.weblogic.domain.v2.ServerSpec;
 
 public class ManagedServersUpStep extends Step {
   private static final LoggingFacade LOGGER = LoggingFactory.getLogger("Operator", "Operator");
-  static final String SERVERS_UP_MSG = "Running servers for domain with UID: %s, running list: %s";
+  static final String SERVERS_UP_MSG =
+      "Running servers for domain with UID: {0}, running list: {1}";
   private static NextStepFactory NEXT_STEP_FACTORY =
       (info, servers, next) ->
           scaleDownIfNecessary(info, servers, new ClusterServicesStep(info, next));
@@ -49,17 +50,25 @@ public class ManagedServersUpStep extends Step {
     }
 
     void addServerIfNeeded(@Nonnull WlsServerConfig serverConfig, WlsClusterConfig clusterConfig) {
+      LOGGER.entering(domain.getDomainUID());
       String serverName = serverConfig.getName();
       if (servers.contains(serverName) || serverName.equals(domain.getAsName())) return;
 
       String clusterName = clusterConfig == null ? null : clusterConfig.getClusterName();
       ServerSpec server = domain.getServer(serverName, clusterName);
 
+      LOGGER.info(
+          "xyz- addServerIfNeeded getReplicaCount("
+              + clusterName
+              + ") is "
+              + getReplicaCount(clusterName));
       if (server.shouldStart(getReplicaCount(clusterName))) {
+        LOGGER.info("xyz- addServerIfNeeded adding server: " + serverName);
         servers.add(serverName);
         addStartupInfo(new ServerStartupInfo(serverConfig, clusterName, server));
         addToCluster(clusterName);
       }
+      LOGGER.exiting(servers);
     }
 
     private Step createNextStep(Step next) {
@@ -77,6 +86,7 @@ public class ManagedServersUpStep extends Step {
     }
 
     private void addToCluster(String clusterName) {
+      LOGGER.entering(clusterName);
       if (clusterName != null) replicas.put(clusterName, 1 + getReplicaCount(clusterName));
     }
 
@@ -91,8 +101,8 @@ public class ManagedServersUpStep extends Step {
 
   @Override
   public NextAction apply(Packet packet) {
-    LOGGER.entering();
     DomainPresenceInfo info = packet.getSPI(DomainPresenceInfo.class);
+    LOGGER.entering(info);
     ServersUpStepFactory factory = new ServersUpStepFactory(info.getDomain());
 
     if (LOGGER.isFineEnabled()) {
@@ -112,7 +122,7 @@ public class ManagedServersUpStep extends Step {
     }
 
     info.setServerStartupInfo(factory.getStartupInfos());
-    LOGGER.exiting();
+    LOGGER.exiting(info);
     return doNext(
         NEXT_STEP_FACTORY.createServerStep(
             info, factory.servers, factory.createNextStep(getNext())),

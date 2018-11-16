@@ -178,6 +178,8 @@ public class JobHelper {
 
     @Override
     public NextAction apply(Packet packet) {
+      LOGGER.entering();
+
       DomainPresenceInfo info = packet.getSPI(DomainPresenceInfo.class);
       String namespace = info.getNamespace();
 
@@ -203,12 +205,15 @@ public class JobHelper {
 
     @Override
     public NextAction onFailure(Packet packet, CallResponse<String> callResponse) {
+      LOGGER.entering();
       cleanupJobArtifacts(packet);
       return super.onFailure(packet, callResponse);
     }
 
     @Override
     public NextAction onSuccess(Packet packet, CallResponse<String> callResponse) {
+      LOGGER.entering();
+
       String result = callResponse.getResult();
 
       // Log output to Operator log

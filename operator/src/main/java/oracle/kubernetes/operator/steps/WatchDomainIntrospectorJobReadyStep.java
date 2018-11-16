@@ -25,6 +25,8 @@ public class WatchDomainIntrospectorJobReadyStep extends Step {
 
   @Override
   public NextAction apply(Packet packet) {
+    LOGGER.entering();
+
     DomainPresenceInfo info = packet.getSPI(DomainPresenceInfo.class);
     String namespace = info.getNamespace();
     String initialResourceVersion = info.getDomain().getMetadata().getResourceVersion();
