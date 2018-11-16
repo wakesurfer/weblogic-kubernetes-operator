@@ -22,8 +22,11 @@ import oracle.kubernetes.weblogic.domain.v2.Domain;
 import oracle.kubernetes.weblogic.domain.v2.DomainSpec;
 import org.junit.After;
 import org.junit.Before;
+import org.junit.FixMethodOrder;
 import org.junit.Test;
+import org.junit.runners.MethodSorters;
 
+@FixMethodOrder(MethodSorters.NAME_ASCENDING)
 public class ServerKubernetesObjectsLookupTest {
 
   private List<Memento> mementos = new ArrayList<>();
