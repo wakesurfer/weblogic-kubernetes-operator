@@ -8,6 +8,7 @@ import static org.hamcrest.Matchers.anEmptyMap;
 import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.Matchers.hasEntry;
 import static org.hamcrest.Matchers.is;
+import static org.hamcrest.Matchers.notNullValue;
 import static org.hamcrest.Matchers.sameInstance;
 import static org.hamcrest.junit.MatcherAssert.assertThat;
 
@@ -62,8 +63,10 @@ public class ServerKubernetesObjectsLookupTest {
   public void whenK8sHasDomainWithOneServer_canLookupFromServerKubernetesObjectsFactory() {
     Domain domain = createDomain("UID1", "ns1");
     DomainPresenceInfo info = DomainPresenceInfoManager.getOrCreate(domain);
-    assertThat(
-        "DomainPresenceInfo already has servers!", info.getServers(), is(anEmptyMap())); // debug-
+    assertThat("DomainPresenceInfo already has servers!", info.getServers(), is(anEmptyMap()));
+    assertThat(ServerKubernetesObjectsManager.getServerKubernetesObjects(), is(anEmptyMap()));
+    assertThat(info.getDomain(), is(notNullValue()));
+
     ServerKubernetesObjects sko = ServerKubernetesObjectsManager.getOrCreate(info, "admin");
 
     assertThat(info.getServers(), hasEntry(equalTo("admin"), sameInstance(sko)));
