@@ -4,6 +4,7 @@
 
 package oracle.kubernetes.operator.helpers;
 
+import static org.hamcrest.Matchers.aMapWithSize;
 import static org.hamcrest.Matchers.anEmptyMap;
 import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.Matchers.hasEntry;
@@ -71,6 +72,9 @@ public class ServerKubernetesObjectsLookupTest {
 
     assertThat(info.getServers(), hasEntry(equalTo("admin"), sameInstance(sko)));
 
+    assertThat(ServerKubernetesObjectsManager.getServerKubernetesObjects(), is(aMapWithSize(1)));
+
+    assertThat(domain.getSpec().getDomainUID(), equalTo("UID1"));
     assertThat(
         ServerKubernetesObjectsManager.getServerKubernetesObjects(),
         hasEntry(equalTo(LegalNames.toServerName("UID1", "admin")), sameInstance(sko)));
