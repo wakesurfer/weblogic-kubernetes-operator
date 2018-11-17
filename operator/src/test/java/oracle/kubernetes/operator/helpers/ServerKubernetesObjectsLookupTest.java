@@ -4,6 +4,7 @@
 
 package oracle.kubernetes.operator.helpers;
 
+import static org.hamcrest.CoreMatchers.nullValue;
 import static org.hamcrest.Matchers.aMapWithSize;
 import static org.hamcrest.Matchers.anEmptyMap;
 import static org.hamcrest.Matchers.equalTo;
@@ -63,6 +64,8 @@ public class ServerKubernetesObjectsLookupTest {
   @Test
   public void whenK8sHasDomainWithOneServer_canLookupFromServerKubernetesObjectsFactory() {
     Domain domain = createDomain("UID1", "ns1");
+    assertThat(DomainPresenceInfoManager.lookup("UID1"), is(nullValue()));
+
     DomainPresenceInfo info = DomainPresenceInfoManager.getOrCreate(domain);
     assertThat("DomainPresenceInfo already has servers!", info.getServers(), is(anEmptyMap()));
     assertThat(ServerKubernetesObjectsManager.getServerKubernetesObjects(), is(anEmptyMap()));
@@ -84,12 +87,14 @@ public class ServerKubernetesObjectsLookupTest {
   public void
       whenK8sHasDomainAndServerIsRemoved_canNoLongerLookupFromServerKubernetesObjectsFactory() {
     Domain domain = createDomain("UID1", "ns1");
+    assertThat(DomainPresenceInfoManager.lookup("UID1"), is(nullValue()));
+
     DomainPresenceInfo info = DomainPresenceInfoManager.getOrCreate(domain);
 
-    ServerKubernetesObjects sko = ServerKubernetesObjectsManager.getOrCreate(info, "admin");
+    ServerKubernetesObjects sko = ServerKubernetesObjectsManager.getOrCreate(info, "admin2");
     assertThat(ServerKubernetesObjectsManager.getServerKubernetesObjects(), is(aMapWithSize(1)));
 
-    info.getServers().remove("admin", sko);
+    info.getServers().remove("admin2", sko);
 
     assertThat(info.getServers(), is(anEmptyMap()));
 
