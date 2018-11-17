@@ -45,7 +45,7 @@ public class ServerKubernetesObjectsLookupTest {
   }
 
   @After
-  public void tearDown() throws Exception {
+  public void tearDown() {
     for (Memento memento : mementos) memento.revert();
   }
 
@@ -87,6 +87,7 @@ public class ServerKubernetesObjectsLookupTest {
     DomainPresenceInfo info = DomainPresenceInfoManager.getOrCreate(domain);
 
     ServerKubernetesObjects sko = ServerKubernetesObjectsManager.getOrCreate(info, "admin");
+    assertThat(ServerKubernetesObjectsManager.getServerKubernetesObjects(), is(aMapWithSize(1)));
 
     info.getServers().remove("admin", sko);
 
