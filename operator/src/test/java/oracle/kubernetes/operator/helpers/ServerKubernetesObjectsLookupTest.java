@@ -32,13 +32,14 @@ public class ServerKubernetesObjectsLookupTest {
   private List<Memento> mementos = new ArrayList<>();
 
   @Rule
-  public TestWatcher watcher = new TestWatcher() {
-    @Override
-    protected void failed(Throwable e, Description description) {
-      super.failed(e, description);
-      System.out.println("Tell Russell\n" + DomainPresenceMonitor.getExplanation());
-    }
-  };
+  public TestWatcher watcher =
+      new TestWatcher() {
+        @Override
+        protected void failed(Throwable e, Description description) {
+          super.failed(e, description);
+          System.out.println("Tell Russell\n" + DomainPresenceMonitor.getExplanation());
+        }
+      };
 
   @Before
   public void setUp() throws Exception {

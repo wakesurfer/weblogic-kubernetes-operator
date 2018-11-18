@@ -23,10 +23,8 @@ class DomainPresenceMonitor {
     StringBuilder sb = new StringBuilder();
     if (serverNameAsKey != null)
       format(sb, "putIfAbsent called with %s and returned %s", serverNameAsKey, result);
-    if (domain != null)
-      format(sb, "Domain was not null");
-    if (serverName != null)
-      format(sb, "registered with key %s", serverName);
+    if (domain != null) format(sb, "Domain was not null");
+    if (serverName != null) format(sb, "registered with key %s", serverName);
 
     return sb.toString();
   }
