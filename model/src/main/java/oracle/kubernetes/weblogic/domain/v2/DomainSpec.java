@@ -10,10 +10,11 @@ import com.google.gson.annotations.Expose;
 import com.google.gson.annotations.SerializedName;
 import io.kubernetes.client.models.V1LocalObjectReference;
 import io.kubernetes.client.models.V1SecretReference;
+import java.util.ArrayList;
 import java.util.Collections;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Optional;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
@@ -192,7 +193,7 @@ public class DomainSpec extends BaseConfiguration {
   @SerializedName("managedServers")
   @Expose
   @Description("Configuration for the managed servers")
-  private Map<String, ManagedServer> managedServers = new HashMap<>();
+  private List<ManagedServer> managedServers = new ArrayList<>();
 
   /**
    * The configured clusters.
@@ -202,9 +203,9 @@ public class DomainSpec extends BaseConfiguration {
   @SerializedName("clusters")
   @Expose
   @Description("Configuration for the clusters")
-  protected Map<String, Cluster> clusters = new HashMap<>();
+  protected List<Cluster> clusters = new ArrayList<>();
 
-  public AdminServer getOrCreateAdminServer(String adminServerName) {
+  AdminServer getOrCreateAdminServer(String adminServerName) {
     if (adminServer != null) return adminServer;
 
     return createAdminServer(adminServerName);
@@ -629,12 +630,26 @@ public class DomainSpec extends BaseConfiguration {
     return builder.isEquals();
   }
 
-  private Server getServer(String serverName) {
-    return managedServers.get(serverName);
+  void addManagedServer(ManagedServer managedServer) {
+    managedServers.add(managedServer);
   }
 
-  private Cluster getCluster(String clusterName) {
-    return clusters.get(clusterName);
+  ManagedServer getManagedServer(String serverName) {
+    for (ManagedServer server : managedServers)
+      if (Objects.equals(serverName, server.getServerName())) return server;
+
+    return null;
+  }
+
+  void addCluster(Cluster cluster) {
+    clusters.add(cluster);
+  }
+
+  Cluster getCluster(String clusterName) {
+    for (Cluster cluster : clusters)
+      if (Objects.equals(clusterName, cluster.getClusterName())) return cluster;
+
+    return null;
   }
 
   private int getReplicaCountFor(Cluster cluster) {
@@ -647,20 +662,12 @@ public class DomainSpec extends BaseConfiguration {
     return cluster != null && cluster.getReplicas() != null;
   }
 
-  public AdminServer getAdminServer() {
+  private AdminServer getAdminServer() {
     return Optional.ofNullable(adminServer).orElse(AdminServer.NULL_ADMIN_SERVER);
   }
 
-  public void setAdminServer(AdminServer adminServer) {
+  private void setAdminServer(AdminServer adminServer) {
     this.adminServer = adminServer;
-  }
-
-  public Map<String, ManagedServer> getManagedServers() {
-    return managedServers;
-  }
-
-  public Map<String, Cluster> getClusters() {
-    return clusters;
   }
 
   class V2EffectiveConfigurationFactory implements EffectiveConfigurationFactory {
@@ -673,7 +680,7 @@ public class DomainSpec extends BaseConfiguration {
     public ServerSpec getServerSpec(String serverName, String clusterName) {
       return new ManagedServerSpecV2Impl(
           DomainSpec.this,
-          getServer(serverName),
+          getManagedServer(serverName),
           getClusterLimit(clusterName),
           getCluster(clusterName),
           DomainSpec.this);
@@ -735,7 +742,7 @@ public class DomainSpec extends BaseConfiguration {
 
     private Cluster createClusterWithName(String clusterName) {
       Cluster cluster = new Cluster().withClusterName(clusterName);
-      clusters.put(clusterName, cluster);
+      addCluster(cluster);
       return cluster;
     }
   }

@@ -148,7 +148,7 @@ public class DomainV2Configurator extends DomainConfigurator {
   }
 
   private Server getOrCreateManagedServer(@Nonnull String serverName) {
-    ManagedServer server = getDomainSpec().getManagedServers().get(serverName);
+    ManagedServer server = getDomainSpec().getManagedServer(serverName);
     if (server != null) {
       server.setServerName(serverName);
       return server;
@@ -159,7 +159,7 @@ public class DomainV2Configurator extends DomainConfigurator {
 
   private Server createManagedServer(String serverName) {
     ManagedServer server = new ManagedServer().withServerName(serverName);
-    getDomainSpec().getManagedServers().put(serverName, server);
+    getDomainSpec().addManagedServer(server);
     return server;
   }
 
@@ -288,7 +288,7 @@ public class DomainV2Configurator extends DomainConfigurator {
   }
 
   private Cluster getOrCreateCluster(@Nonnull String clusterName) {
-    Cluster cluster = getDomainSpec().getClusters().get(clusterName);
+    Cluster cluster = getDomainSpec().getCluster(clusterName);
     if (cluster != null) {
       cluster.setClusterName(clusterName);
       return cluster;
@@ -299,7 +299,7 @@ public class DomainV2Configurator extends DomainConfigurator {
 
   private Cluster createCluster(@Nonnull String clusterName) {
     Cluster cluster = new Cluster().withClusterName(clusterName);
-    getDomainSpec().getClusters().put(clusterName, cluster);
+    getDomainSpec().addCluster(cluster);
     return cluster;
   }
 

@@ -81,8 +81,7 @@ spec:
 
   # list of configurations per named server.
   managedServers:
-    server1:
-      # an (optional) list of environment variable to be set on the server
+  -   serverName: server1
       serverPod:
         env:
         - name: JAVA_OPTIONS
@@ -96,12 +95,12 @@ spec:
             memory: "32Mi"
           limits:
             memory: "256Mi"
-    server2:
+  -   serverName: server2
       serverStartState: ADMIN
         
   # If you use this entry, then the rules will be applied to ALL servers that are members of the named clusters.
   clusters:
-    cluster2:
+  -   clusterName: cluster2
       desiredState: "RUNNING"
       replicas: 5
       serverPod:

@@ -65,7 +65,7 @@ spec:
         path: /other/path
 
   clusters:
-    cluster1:
+  -   clusterName: cluster1
       serverPod:
         readinessProbe:
           initialDelaySeconds: 10
@@ -101,7 +101,7 @@ spec:
             user: weblogic
 
   managedServers:
-    server2:
+  -   serverName: server2
       serverPod:
         livenessProbe:
           periodSeconds: 18
