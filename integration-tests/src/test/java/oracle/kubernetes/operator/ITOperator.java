@@ -88,7 +88,7 @@ public class ITOperator extends BaseTest {
     logger.info("SUCCESS");
   }
 
-  @Test
+  // @Test
   public void test1CreateFirstOperatorAndDomain() throws Exception {
 
     logTestBegin("test1CreateFirstOperatorAndDomain");
@@ -115,7 +115,7 @@ public class ITOperator extends BaseTest {
     logger.info("SUCCESS - test2CreateAnotherDomainInDefaultNS");
   }
 
-  // @Test
+  @Test
   public void test3CreateDomainInTest1NS() throws Exception {
     Assume.assumeFalse(
         System.getenv("QUICKTEST") != null && System.getenv("QUICKTEST").equalsIgnoreCase("true"));
