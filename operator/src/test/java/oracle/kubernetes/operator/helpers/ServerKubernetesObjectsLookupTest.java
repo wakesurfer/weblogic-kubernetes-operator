@@ -99,8 +99,8 @@ public class ServerKubernetesObjectsLookupTest {
     retryLegalName = LegalNames.toServerName("UID1", "admin");
     retryInstance = sko;
     assertThat(
-        ServerKubernetesObjectsManager.getServerKubernetesObjects(),
-        hasEntry(equalTo(LegalNames.toServerName("UID1", "admin")), sameInstance(sko)));
+        ServerKubernetesObjectsManager.getServerKubernetesObjects().get(retryLegalName),
+        sameInstance(sko));
   }
 
   @Test
