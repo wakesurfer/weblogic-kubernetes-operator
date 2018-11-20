@@ -644,10 +644,25 @@ class SitConfigGenerator(Generator):
   def customizeServer(self, server):
     name=server.getName()
     listen_address=self.env.toDNS1123Legal(self.env.getDomainUID() + "-" + name)
+    listen_port="FIGURE OUT"
     self.writeln("<d:server>")
     self.indent()
     self.writeln("<d:name>" + name + "</d:name>")
     self.writeln("<d:listen-address f:combine-mode=\"replace\">" + listen_address + "</d:listen-address>")
+    if server.getSSL():
+        self.writeln("<d:ssl>")
+        self.indent()
+        self.writeln("<d:listen-address f:combine-mode=\"replace\">" + listen_address + "</d:listen-address>")
+        self.undent()
+        self.writeln("</d:ssl>")
+    for nap in server.getNetworkAccessPoints():
+        nap_name=nap.getName()
+        self.writeln("<d:network-access-point>")
+        self.indent()
+        self.writeln("<d:name f:combine-mode=\"replace\">" + nap_name + "</d:name>")
+        self.writeln("<d:public-address f:combine-mode=\"replace\">" + listen_address + "</d:public-address>")
+        self.undent()
+        self.writeln("</d:network-access-point>")
     self.customizeLog(name)
     self.undent()
     self.writeln("</d:server>")
