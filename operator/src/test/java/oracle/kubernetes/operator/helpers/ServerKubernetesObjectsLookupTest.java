@@ -83,7 +83,7 @@ public class ServerKubernetesObjectsLookupTest {
     assertThat(ServerKubernetesObjectsManager.getServerKubernetesObjects(), is(anEmptyMap()));
   }
 
-  @Test
+  // @Test
   public void whenK8sHasDomainWithOneServer_canLookupFromServerKubernetesObjectsFactory() {
     Domain domain = createDomain("UID1", "ns1");
     assertThat(DomainPresenceInfoManager.lookup("UID1"), is(nullValue()));
@@ -105,7 +105,7 @@ public class ServerKubernetesObjectsLookupTest {
         hasEntry(equalTo(LegalNames.toServerName("UID1", "admin")), sameInstance(sko)));
   }
 
-  @Test
+  // @Test
   public void
       whenK8sHasDomainAndServerIsRemoved_canNoLongerLookupFromServerKubernetesObjectsFactory() {
     Domain domain = createDomain("UID1", "ns1");

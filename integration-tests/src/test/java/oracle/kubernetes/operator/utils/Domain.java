@@ -794,7 +794,7 @@ public class Domain {
           break;
         }
       }
-      logger.info("Response is: " + response);
+   //   logger.info("Response is: " + response);
       // }
     }
     logger.info("ManagedServers " + managedServers);
