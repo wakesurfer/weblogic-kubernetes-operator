@@ -350,7 +350,7 @@ public class Domain {
       callWebAppAndWaitTillReady(curlCmdResCode.toString());
 
       // execute curl and look for the managed server name in response
-      callWebAppAndCheckForServerNameInResponse(curlCmd.toString(), true); // verifyLoadBalance);
+      callWebAppAndCheckForServerNameInResponse(curlCmd.toString(), verifyLoadBalance);
       // logger.info("curlCmd "+curlCmd);
     }
   }
@@ -785,27 +785,30 @@ public class Domain {
       } else {
         logger.info("webapp invoked successfully");
       }
-      if (verifyLoadBalancing) {
-        String response = result.stdout().trim();
-        // logger.info("response "+ response);
-        for (String key : managedServers.keySet()) {
-          if (response.contains(key)) {
-            managedServers.put(key, new Boolean(true));
-            break;
-          }
+      //   if (verifyLoadBalancing) {
+      String response = result.stdout().trim();
+      // logger.info("response "+ response);
+      for (String key : managedServers.keySet()) {
+        if (response.contains(key)) {
+          managedServers.put(key, new Boolean(true));
+          break;
         }
       }
+      logger.info("Response is: " + response);
+      // }
     }
     logger.info("ManagedServers " + managedServers);
     // error if any managedserver value is false
-    if (verifyLoadBalancing) {
-      for (Map.Entry<String, Boolean> entry : managedServers.entrySet()) {
+    //    if (verifyLoadBalancing) {
+    for (Map.Entry<String, Boolean> entry : managedServers.entrySet()) {
+      if (verifyLoadBalancing) {
         if (!entry.getValue().booleanValue()) {
           throw new RuntimeException(
               "FAILURE: Load balancer can not reach server " + entry.getKey());
         }
       }
     }
+    //    }
   }
 
   private void initialize(String inputYaml) throws Exception {
