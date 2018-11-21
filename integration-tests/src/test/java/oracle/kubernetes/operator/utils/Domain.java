@@ -350,7 +350,7 @@ public class Domain {
       callWebAppAndWaitTillReady(curlCmdResCode.toString());
 
       // execute curl and look for the managed server name in response
-      callWebAppAndCheckForServerNameInResponse(curlCmd.toString(), verifyLoadBalance);
+      callWebAppAndCheckForServerNameInResponse(curlCmd.toString(), true); // verifyLoadBalance);
       // logger.info("curlCmd "+curlCmd);
     }
   }
