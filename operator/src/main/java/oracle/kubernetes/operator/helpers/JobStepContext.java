@@ -4,6 +4,7 @@ import io.kubernetes.client.models.*;
 import java.io.File;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Optional;
 import oracle.kubernetes.operator.KubernetesConstants;
 import oracle.kubernetes.operator.LabelConstants;
 import oracle.kubernetes.operator.ProcessingConstants;
@@ -70,8 +71,13 @@ public abstract class JobStepContext implements StepContextConstants {
     return info.getClaims().getItems();
   }
 
+  private String getDiscoveredClaim() {
+    return getClaims().isEmpty() ? null : getClaims().iterator().next().getMetadata().getName();
+  }
+
   private String getClaimName() {
-    return getClaims().iterator().next().getMetadata().getName();
+    return Optional.ofNullable(info.getDomain().getPersistentVolumeClaimName())
+        .orElse(getDiscoveredClaim());
   }
 
   // ----------------------- step methods ------------------------------
@@ -127,6 +133,14 @@ public abstract class JobStepContext implements StepContextConstants {
 
   protected String getIntrospectHome() {
     return getDomainHome();
+  }
+
+  List<String> getConfigOverrideSecrets() {
+    return getDomain().getConfigOverrideSecrets();
+  }
+
+  String getConfigOverrides() {
+    return getDomain().getConfigOverrides();
   }
 
   private ResponseStep<V1Job> createResponse(Step next) {
@@ -200,25 +214,53 @@ public abstract class JobStepContext implements StepContextConstants {
 
     podSpec.setImagePullSecrets(info.getDomain().getSpec().getImagePullSecrets());
 
-    if (!getClaims().isEmpty()) {
+    if (getClaimName() != null) {
       podSpec.addVolumesItem(
           new V1Volume()
               .name(STORAGE_VOLUME)
               .persistentVolumeClaim(getPersistenVolumeClaimVolumeSource(getClaimName())));
     }
+
+    List<String> configOverrideSecrets = getConfigOverrideSecrets();
+    for (String secretName : configOverrideSecrets) {
+      podSpec.addVolumesItem(
+          new V1Volume()
+              .name(secretName + "-volume")
+              .secret(getOverrideSecretVolumeSource(secretName)));
+    }
+    if (getConfigOverrides() != null && getConfigOverrides().length() > 0) {
+      podSpec.addVolumesItem(
+          new V1Volume()
+              .name(getConfigOverrides() + "-volume")
+              .configMap(getOverridesVolumeSource(getConfigOverrides())));
+    }
+
     return podSpec;
   }
 
   private V1Container createContainer(TuningParameters tuningParameters) {
-    return new V1Container()
-        .name(getJobName())
-        .image(getImageName())
-        .imagePullPolicy(getImagePullPolicy())
-        .command(getContainerCommand())
-        .env(getEnvironmentVariables(tuningParameters))
-        .addVolumeMountsItem(volumeMount(STORAGE_VOLUME, STORAGE_MOUNT_PATH))
-        .addVolumeMountsItem(readOnlyVolumeMount(SECRETS_VOLUME, SECRETS_MOUNT_PATH))
-        .addVolumeMountsItem(readOnlyVolumeMount(SCRIPTS_VOLUME, SCRIPTS_MOUNTS_PATH));
+    V1Container container =
+        new V1Container()
+            .name(getJobName())
+            .image(getImageName())
+            .imagePullPolicy(getImagePullPolicy())
+            .command(getContainerCommand())
+            .env(getEnvironmentVariables(tuningParameters))
+            .addVolumeMountsItem(volumeMount(STORAGE_VOLUME, STORAGE_MOUNT_PATH))
+            .addVolumeMountsItem(readOnlyVolumeMount(SECRETS_VOLUME, SECRETS_MOUNT_PATH))
+            .addVolumeMountsItem(readOnlyVolumeMount(SCRIPTS_VOLUME, SCRIPTS_MOUNTS_PATH));
+
+    if (getConfigOverrides() != null && getConfigOverrides().length() > 0) {
+      container.addVolumeMountsItem(
+          readOnlyVolumeMount(getConfigOverrides() + "-volume", OVERRIDES_CM_MOUNT_PATH));
+    }
+
+    List<String> configOverrideSecrets = getConfigOverrideSecrets();
+    for (String secretName : configOverrideSecrets) {
+      container.addVolumeMountsItem(
+          readOnlyVolumeMount(secretName + "-volume", OVERRIDE_SECRETS_MOUNT_PATH));
+    }
+    return container;
   }
 
   String getImageName() {
@@ -272,5 +314,13 @@ public abstract class JobStepContext implements StepContextConstants {
   protected V1PersistentVolumeClaimVolumeSource getPersistenVolumeClaimVolumeSource(
       String claimName) {
     return new V1PersistentVolumeClaimVolumeSource().claimName(claimName);
+  }
+
+  protected V1SecretVolumeSource getOverrideSecretVolumeSource(String name) {
+    return new V1SecretVolumeSource().secretName(name).defaultMode(420);
+  }
+
+  protected V1ConfigMapVolumeSource getOverridesVolumeSource(String name) {
+    return new V1ConfigMapVolumeSource().name(name).defaultMode(ALL_READ_AND_EXECUTE);
   }
 }
