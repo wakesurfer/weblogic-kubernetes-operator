@@ -18,7 +18,7 @@ serviceAccount: "default"
 domainNamespaces: [ "default" ]
 
 # image specifies the docker image containing the operator code.
-image: "weblogic-kubernetes-operator:1.1"
+image: "weblogic-kubernetes-operator:2.0"
 
 # imagePullPolicy specifies the image pull policy for the operator docker image.
 imagePullPolicy: "IfNotPresent"
@@ -66,7 +66,7 @@ externalRestHttpsPort: 31001
 # The 'internalDebugHttpPort' property controls the port number inside the Kubernetes
 # cluster and the 'externalDebugHttpPort' property controls the port number outside
 # the Kubernetes cluster.
-remoteDebugNodePortEnabled: false
+remoteDebugNodePortEnabled: true
 
 # internalDebugHttpPort specifes the port number inside the Kubernetes cluster for the operator's Java
 # remote debug server.

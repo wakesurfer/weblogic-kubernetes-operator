@@ -820,6 +820,7 @@ public class DomainProcessor {
             ServiceHelper.createForServerStep(null),
             new WatchPodReadyAdminStep(Main.podWatchers, null),
             WlsRetriever.readConfigStep(null),
+            ServiceHelper.createForAdminServiceStep(null),
             new ExternalAdminChannelsStep(next)));
   }
 
