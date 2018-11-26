@@ -660,4 +660,78 @@ public class ServiceHelper {
       sko.getChannels().remove(getChannelName());
     }
   }
+
+  /**
+   *
+   * @param next
+   * @return
+   */
+  public static Step createForAdminServiceStep(Step next) {
+    return new ForAdminServiceStep(next);
+  }
+  private static class ForAdminServiceStep extends ServiceHelperStep {
+
+    ForAdminServiceStep(Step next) {
+      super(next);
+    }
+
+    @Override
+    protected ServiceStepContext createContext(Packet packet) {
+      return new ForAdminServiceStepContext(this, packet);
+    }
+  }
+  private static class ForAdminServiceStepContext extends ServerServiceStepContext {
+
+    ForAdminServiceStepContext(Step conflictStep, Packet packet) {
+      super(conflictStep, packet);
+    }
+
+    @Override
+    protected String createServiceName() {
+      return LegalNames.toAdminServiceName(getDomainUID(), getServerName());
+    }
+
+    @Override
+    protected String getSpecType() {
+      return "NodePort";
+    }
+
+    @Override
+    protected V1ServicePort createServicePort() {
+      return new V1ServicePort()
+              .nodePort(1);
+    }
+
+    @Override
+    protected V1Service getServiceFromRecord() {
+      return sko.getService().get();
+    }
+
+    @Override
+    protected void addServiceToRecord(V1Service service) {
+      sko.getService().set(service);
+    }
+
+    @Override
+    protected void removeServiceFromRecord() {
+      sko.getService().set(null);
+    }
+
+    @Override
+    protected String getServiceCreatedMessageKey() {
+      return ADMIN_SERVICE_CREATED;
+    }
+
+    @Override
+    protected String getServiceReplaceMessageKey() {
+      return ADMIN_SERVICE_REPLACED;
+    }
+
+    @Override
+    protected V1ServiceSpec createServiceSpec() {
+      V1ServiceSpec spec = super.createServiceSpec();
+
+      return null;
+    }
+  }
 }
