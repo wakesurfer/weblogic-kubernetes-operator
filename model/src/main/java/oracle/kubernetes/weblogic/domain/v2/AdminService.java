@@ -76,45 +76,4 @@ public class AdminService {
                 .append(channels, as.channels)
                 .isEquals();
     }
-
-
-    class Channel {
-        @SerializedName("NodePort")
-        private int nodePort;
-
-        public int getNodePort() {
-            return nodePort;
-        }
-        public void setNodePort(int nodePort) {
-            this.nodePort = nodePort;
-        }
-
-        @Override
-        public String toString() {
-            return new ToStringBuilder(this)
-                    .append("nodePort", nodePort)
-                    .toString();
-        }
-
-        @Override
-        public int hashCode() {
-            return new HashCodeBuilder()
-                    .append(nodePort)
-                    .toHashCode();
-        }
-
-        @Override
-        public boolean equals(Object o) {
-            if(o == null) {
-                return false;
-            }
-            if(!(o instanceof Channel)) {
-                return false;
-            }
-            Channel ch = (Channel) o;
-            return new EqualsBuilder()
-                    .append(nodePort, ch.nodePort)
-                    .isEquals();
-        }
-    }
 }

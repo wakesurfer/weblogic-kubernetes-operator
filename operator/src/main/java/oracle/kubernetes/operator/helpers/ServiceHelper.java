@@ -20,9 +20,8 @@ import io.kubernetes.client.models.V1Service;
 import io.kubernetes.client.models.V1ServicePort;
 import io.kubernetes.client.models.V1ServiceSpec;
 import io.kubernetes.client.models.V1Status;
-import java.util.Collections;
-import java.util.List;
-import java.util.Map;
+
+import java.util.*;
 import javax.annotation.Nonnull;
 import oracle.kubernetes.operator.LabelConstants;
 import oracle.kubernetes.operator.ProcessingConstants;
@@ -36,6 +35,7 @@ import oracle.kubernetes.operator.wlsconfig.NetworkAccessPoint;
 import oracle.kubernetes.operator.work.NextAction;
 import oracle.kubernetes.operator.work.Packet;
 import oracle.kubernetes.operator.work.Step;
+import oracle.kubernetes.weblogic.domain.v2.AdminService;
 import oracle.kubernetes.weblogic.domain.v2.Domain;
 import org.apache.commons.lang3.builder.EqualsBuilder;
 
@@ -662,7 +662,7 @@ public class ServiceHelper {
   }
 
   /**
-   *
+   *Create asynchronous step for admin service
    * @param next
    * @return
    */
@@ -731,7 +731,39 @@ public class ServiceHelper {
     protected V1ServiceSpec createServiceSpec() {
       V1ServiceSpec spec = super.createServiceSpec();
 
-      return null;
+      List<V1ServicePort> ports = new ArrayList<>();
+      AdminService adminService = getAdminService();
+      for(String channel : adminService.getChannels().keySet()) {
+        V1ServicePort port = new V1ServicePort()
+                .nodePort(adminService
+                .getChannels()
+                .get(channel).getNodePort()
+                );
+        ports.add(port);
+      }
+      spec.setPorts(ports);
+      return spec;
+    }
+
+    @Override
+    protected V1ObjectMeta createMetadata() {
+      V1ObjectMeta metadata = super.createMetadata();
+
+      AdminService adminService = getAdminService();
+      for(String label : adminService.getLabels().keySet()) {
+        metadata.putLabelsItem(label,adminService.getLabels().get(label));
+      }
+      for(String annotation : adminService.getChannels().keySet()) {
+        metadata.putAnnotationsItem(annotation, adminService.getAnnotations().get(annotation));
+      }
+      return metadata;
+    }
+
+    private AdminService getAdminService() {
+      return getDomain()
+              .getSpec()
+              .getAdminServer()
+              .getAdminService();
     }
   }
 }

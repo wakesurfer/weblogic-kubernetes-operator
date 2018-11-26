@@ -638,6 +638,9 @@ public class DomainProcessor {
     resources.add(ServiceHelper.createForServerStep(null));
     resources.add(new WatchPodReadyAdminStep(Main.podWatchers, null));
     resources.add(new ExternalAdminChannelsStep(next));
+    if(dom.getSpec().getAdminServer().getAdminService() != null) {
+      resources.add(ServiceHelper.createForAdminServiceStep(null));
+    }
     return resources.toArray(new Step[0]);
   }
 
