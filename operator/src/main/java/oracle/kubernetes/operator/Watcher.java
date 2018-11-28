@@ -195,9 +195,7 @@ abstract class Watcher<T> {
   private boolean isFresh(String type, Object object) {
     if (resourceVersion == 0) return true;
     long newResourceVersion = getResourceVersionFromMetadata(object);
-    return type.equalsIgnoreCase("DELETED")
-        ? newResourceVersion >= resourceVersion
-        : newResourceVersion > resourceVersion;
+    return type.equalsIgnoreCase("DELETED") || newResourceVersion > resourceVersion;
   }
 
   private void updateResourceVersion(long newResourceVersion) {
