@@ -6,7 +6,7 @@ package oracle.kubernetes.operator;
 
 import io.kubernetes.client.ApiException;
 import io.kubernetes.client.models.V1ConfigMap;
-import java.util.concurrent.ThreadFactory;
+import java.util.concurrent.Executor;
 import java.util.concurrent.atomic.AtomicBoolean;
 import oracle.kubernetes.operator.builders.WatchBuilder;
 import oracle.kubernetes.operator.builders.WatchI;
@@ -20,14 +20,14 @@ public class ConfigMapWatcher extends Watcher<V1ConfigMap> {
   private final String ns;
 
   public static ConfigMapWatcher create(
-      ThreadFactory factory,
+      Executor executor,
       String ns,
       String initialResourceVersion,
       WatchListener<V1ConfigMap> listener,
       AtomicBoolean isStopping) {
     ConfigMapWatcher watcher =
         new ConfigMapWatcher(ns, initialResourceVersion, listener, isStopping);
-    watcher.start(factory);
+    watcher.start(executor);
     return watcher;
   }
 

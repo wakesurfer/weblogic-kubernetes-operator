@@ -14,7 +14,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
-import java.util.concurrent.ThreadFactory;
+import java.util.concurrent.Executor;
 import java.util.concurrent.atomic.AtomicBoolean;
 import oracle.kubernetes.operator.builders.WatchBuilder;
 import oracle.kubernetes.operator.builders.WatchI;
@@ -53,13 +53,13 @@ public class PodWatcher extends Watcher<V1Pod>
    * @return Pod watcher for the namespace
    */
   public static PodWatcher create(
-      ThreadFactory factory,
+      Executor executor,
       String ns,
       String initialResourceVersion,
       WatchListener<V1Pod> listener,
       AtomicBoolean isStopping) {
     PodWatcher watcher = new PodWatcher(ns, initialResourceVersion, listener, isStopping);
-    watcher.start(factory);
+    watcher.start(executor);
     return watcher;
   }
 

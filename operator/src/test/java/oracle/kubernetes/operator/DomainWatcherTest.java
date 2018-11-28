@@ -37,6 +37,7 @@ public class DomainWatcherTest extends WatcherTestBase implements WatchListener<
   public void initialRequest_specifiesStartingResourceVersion() {
     sendInitialRequest(INITIAL_RESOURCE_VERSION);
 
+    shutDownThreads();
     assertThat(
         StubWatchFactory.getRequestParameters().get(0),
         hasEntry("resourceVersion", Integer.toString(INITIAL_RESOURCE_VERSION)));

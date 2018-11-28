@@ -11,7 +11,7 @@ import io.kubernetes.client.models.V1ObjectMeta;
 import io.kubernetes.client.models.V1Status;
 import io.kubernetes.client.util.Watch;
 import java.lang.reflect.Method;
-import java.util.concurrent.ThreadFactory;
+import java.util.concurrent.Executor;
 import java.util.concurrent.atomic.AtomicBoolean;
 import oracle.kubernetes.operator.builders.WatchBuilder;
 import oracle.kubernetes.operator.builders.WatchI;
@@ -82,9 +82,8 @@ abstract class Watcher<T> {
   }
 
   /** Kick off the watcher processing that runs in a separate thread. */
-  void start(ThreadFactory factory) {
-    thread = factory.newThread(this::doWatch);
-    thread.start();
+  void start(Executor executor) {
+    executor.execute(this::doWatch);
   }
 
   private void doWatch() {

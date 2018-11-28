@@ -26,7 +26,7 @@ import org.junit.Test;
 
 /** Tests behavior of the Watcher class. */
 @SuppressWarnings("SameParameterValue")
-public abstract class WatcherTestBase extends ThreadFactoryTestBase
+public abstract class WatcherTestBase extends ExecutorTestBase
     implements StubWatchFactory.AllWatchesClosedListener {
   private static final int NEXT_RESOURCE_VERSION = 123456;
   private static final int INITIAL_RESOURCE_VERSION = 123;
@@ -84,6 +84,7 @@ public abstract class WatcherTestBase extends ThreadFactoryTestBase
   public void afterInitialRequest_watchIsClosed() {
     sendInitialRequest(INITIAL_RESOURCE_VERSION);
 
+    shutDownThreads();
     assertThat(StubWatchFactory.getNumCloseCalls(), equalTo(1));
   }
 
@@ -112,6 +113,7 @@ public abstract class WatcherTestBase extends ThreadFactoryTestBase
 
     createAndRunWatcher(NAMESPACE, stopping, INITIAL_RESOURCE_VERSION);
 
+    shutDownThreads();
     assertThat(callBacks, contains(modifyEvent(object2)));
   }
 
@@ -126,6 +128,7 @@ public abstract class WatcherTestBase extends ThreadFactoryTestBase
 
     createAndRunWatcher(NAMESPACE, stopping, INITIAL_RESOURCE_VERSION);
 
+    shutDownThreads();
     assertThat(
         StubWatchFactory.getRequestParameters().get(1),
         hasEntry("resourceVersion", String.valueOf(resourceVersion - 2)));
@@ -140,6 +143,7 @@ public abstract class WatcherTestBase extends ThreadFactoryTestBase
 
       createAndRunWatcher(NAMESPACE, stopping, INITIAL_RESOURCE_VERSION);
 
+      shutDownThreads();
       assertThat(
           StubWatchFactory.getRequestParameters().get(1),
           hasEntry("resourceVersion", Integer.toString(NEXT_RESOURCE_VERSION)));
@@ -156,6 +160,7 @@ public abstract class WatcherTestBase extends ThreadFactoryTestBase
 
     createAndRunWatcher(NAMESPACE, stopping, INITIAL_RESOURCE_VERSION);
 
+    shutDownThreads();
     assertThat(
         StubWatchFactory.getRequestParameters().get(1),
         hasEntry("resourceVersion", Integer.toString(INITIAL_RESOURCE_VERSION + 1)));
@@ -169,6 +174,7 @@ public abstract class WatcherTestBase extends ThreadFactoryTestBase
 
     createAndRunWatcher(NAMESPACE, stopping, INITIAL_RESOURCE_VERSION);
 
+    shutDownThreads();
     assertThat(StubWatchFactory.getNumCloseCalls(), equalTo(2));
   }
 

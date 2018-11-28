@@ -37,6 +37,7 @@ public class ServiceWatcherTest extends WatcherTestBase implements WatchListener
   public void initialRequest_specifiesStartingResourceVersionAndLabelSelector() throws Exception {
     sendInitialRequest(INITIAL_RESOURCE_VERSION);
 
+    shutDownThreads();
     assertThat(
         StubWatchFactory.getRequestParameters().get(0),
         both(hasEntry("resourceVersion", Integer.toString(INITIAL_RESOURCE_VERSION)))

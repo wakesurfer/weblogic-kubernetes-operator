@@ -2,14 +2,14 @@ package oracle.kubernetes.operator;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.concurrent.ThreadFactory;
+import java.util.concurrent.Executor;
 import javax.annotation.Nonnull;
 import org.junit.Rule;
 import org.junit.rules.TestRule;
 import org.junit.rules.TestWatcher;
 import org.junit.runner.Description;
 
-public class ThreadFactoryTestBase implements ThreadFactory {
+public class ExecutorTestBase implements Executor {
   @Rule
   public TestRule watcher =
       new TestWatcher() {
@@ -23,11 +23,11 @@ public class ThreadFactoryTestBase implements ThreadFactory {
   private String testName;
 
   @Override
-  public Thread newThread(@Nonnull Runnable r) {
+  public void execute(@Nonnull Runnable r) {
     Thread thread = new Thread(r);
+    thread.start();
     threads.add(thread);
     thread.setName(String.format("Test thread %d for %s", threads.size(), testName));
-    return thread;
   }
 
   void shutDownThreads() {

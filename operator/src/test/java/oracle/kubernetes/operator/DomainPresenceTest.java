@@ -53,7 +53,6 @@ import oracle.kubernetes.operator.helpers.AsyncCallTestSupport;
 import oracle.kubernetes.operator.helpers.DomainPresenceInfo;
 import oracle.kubernetes.operator.helpers.LegalNames;
 import oracle.kubernetes.operator.helpers.ServerKubernetesObjects;
-import oracle.kubernetes.operator.work.ThreadFactorySingleton;
 import oracle.kubernetes.weblogic.domain.v2.Domain;
 import oracle.kubernetes.weblogic.domain.v2.DomainList;
 import oracle.kubernetes.weblogic.domain.v2.DomainSpec;
@@ -64,7 +63,7 @@ import org.junit.Ignore;
 import org.junit.Test;
 
 @SuppressWarnings("SameParameterValue")
-public class DomainPresenceTest extends ThreadFactoryTestBase {
+public class DomainPresenceTest extends ExecutorTestBase {
 
   private static final String NS = "default";
   private static final String UID = "UID1";
@@ -87,7 +86,6 @@ public class DomainPresenceTest extends ThreadFactoryTestBase {
     mementos.add(testSupport.installRequestStepFactory());
     mementos.add(ClientFactoryStub.install());
     mementos.add(StubWatchFactory.install());
-    mementos.add(installStub(ThreadFactorySingleton.class, "INSTANCE", this));
     mementos.add(
         installStub(DomainProcessorImpl.class, "FIBER_GATE", testSupport.createFiberGateStub()));
 
@@ -145,6 +143,7 @@ public class DomainPresenceTest extends ThreadFactoryTestBase {
 
     readExistingResources();
 
+    shutDownThreads();
     assertThat(dp.getDomainPresenceInfos(), is(anEmptyMap()));
   }
 
@@ -163,6 +162,7 @@ public class DomainPresenceTest extends ThreadFactoryTestBase {
 
     readExistingResources();
 
+    shutDownThreads();
     assertThat(
         dp.getDomainPresenceInfos(),
         hasValue(domain(UID).withNamespace(NS).withIngressForCluster("cluster1")));
@@ -220,6 +220,7 @@ public class DomainPresenceTest extends ThreadFactoryTestBase {
 
     readExistingResources();
 
+    shutDownThreads();
     String serverName = "admin";
     assertThat(
         getServerKubernetesObjects(dp, UID, serverName).getChannels(),
@@ -284,6 +285,7 @@ public class DomainPresenceTest extends ThreadFactoryTestBase {
 
     readExistingResources();
 
+    shutDownThreads();
     assertThat(
         getServerKubernetesObjects(dp, UID, "admin").getService().get(), equalTo(serviceResource));
   }
@@ -308,6 +310,7 @@ public class DomainPresenceTest extends ThreadFactoryTestBase {
 
     readExistingResources();
 
+    shutDownThreads();
     assertThat(getServerKubernetesObjects(dp, UID, "admin").getPod().get(), equalTo(podResource));
   }
 
@@ -349,6 +352,7 @@ public class DomainPresenceTest extends ThreadFactoryTestBase {
 
     readExistingResources();
 
+    shutDownThreads();
     assertThat(
         getServerKubernetesObjects(dp, UID, "admin").getLastKnownStatus().get(), nullValue());
   }

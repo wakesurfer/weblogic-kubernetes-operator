@@ -182,12 +182,20 @@ public class FiberTestSupport {
     /** current time in milliseconds. */
     private long currentTime = 0;
 
+    private Container container = new Container();
+
     private SortedSet<ScheduledItem> scheduledItems = new TreeSet<>();
     private Queue<Runnable> queue = new ArrayDeque<>();
     private Runnable current;
 
     public static ScheduledExecutorStub create() {
       return createStrictStub(ScheduledExecutorStub.class);
+    }
+
+    public ScheduledExecutorStub() {
+      container
+          .getComponents()
+          .put("THIS", Component.createFor(ScheduledExecutorService.class, this));
     }
 
     @Override
@@ -206,7 +214,13 @@ public class FiberTestSupport {
 
     private void runNextRunnable() {
       while (null != (current = queue.poll())) {
-        current.run();
+        ThreadLocalContainerResolver cr = ContainerResolver.getDefault();
+        Container old = cr.enterContainer(container);
+        try {
+          current.run();
+        } finally {
+          cr.exitContainer(old);
+        }
         current = null;
       }
     }

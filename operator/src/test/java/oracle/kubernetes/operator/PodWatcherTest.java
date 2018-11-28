@@ -52,6 +52,7 @@ public class PodWatcherTest extends WatcherTestBase implements WatchListener<V1P
   public void initialRequest_specifiesStartingResourceVersionAndStandardLabelSelector() {
     sendInitialRequest(INITIAL_RESOURCE_VERSION);
 
+    shutDownThreads();
     assertThat(
         StubWatchFactory.getRequestParameters().get(0),
         both(hasEntry("resourceVersion", Integer.toString(INITIAL_RESOURCE_VERSION)))
