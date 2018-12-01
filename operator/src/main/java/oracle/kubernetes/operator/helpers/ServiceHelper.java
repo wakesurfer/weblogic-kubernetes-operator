@@ -798,7 +798,6 @@ public class ServiceHelper {
     @Override
     protected V1ServiceSpec createServiceSpec() {
       V1ServiceSpec spec = super.createServiceSpec();
-
       List<V1ServicePort> ports = new ArrayList<>();
       AdminService adminService = getAdminService();
       for (String channel : adminService.getChannels().keySet()) {
