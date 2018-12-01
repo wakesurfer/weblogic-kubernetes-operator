@@ -996,6 +996,7 @@ public class DomainProcessorImpl implements DomainProcessor {
             new ListPersistentVolumeClaimStep(null),
             PodHelper.createAdminPodStep(null),
             new BeforeAdminServiceStep(null),
+            ServiceHelper.createForAdminServiceStep(null),
             ServiceHelper.createForServerStep(null),
             new WatchPodReadyAdminStep(Main.podWatchers, null),
             WlsRetriever.readConfigStep(null),

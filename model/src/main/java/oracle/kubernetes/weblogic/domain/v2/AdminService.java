@@ -1,6 +1,9 @@
 package oracle.kubernetes.weblogic.domain.v2;
 
 import com.google.gson.annotations.SerializedName;
+
+import java.util.Collections;
+import java.util.HashMap;
 import java.util.Map;
 import org.apache.commons.lang3.builder.EqualsBuilder;
 import org.apache.commons.lang3.builder.HashCodeBuilder;
@@ -9,38 +12,35 @@ import org.apache.commons.lang3.builder.ToStringBuilder;
 public class AdminService {
   /** */
   @SerializedName("labels")
-  private Map<String, String> labels = null;
+  private Map<String, String> labels = new HashMap<>();
   /** */
   @SerializedName("annotations")
-  private Map<String, String> annotations = null;
+  private Map<String, String> annotations = new HashMap<>();
   /** */
   @SerializedName("channels")
-  private Map<String, Channel> channels = null;
+  private Map<String, Integer> channels = new HashMap<>();
 
+  public AdminService addLabel(String name, String value) {
+    labels.put(name,value);
+    return this;
+  }
   public Map<String, String> getLabels() {
-    return labels;
+    return Collections.unmodifiableMap(labels);
   }
-
-  public void setLabels(Map<String, String> labels) {
-    this.labels = labels;
+  public AdminService addAnnotation(String name, String value) {
+    annotations.put(name, value);
+    return this;
   }
-
   public Map<String, String> getAnnotations() {
-    return annotations;
+    return Collections.unmodifiableMap(annotations);
   }
-
-  public void setAnnotations(Map<String, String> annotations) {
-    this.annotations = annotations;
+  public AdminService addChannel(String name, Integer port) {
+    channels.put(name, port);
+    return this;
   }
-
-  public Map<String, Channel> getChannels() {
+  public Map<String, Integer> getChannels() {
     return channels;
   }
-
-  public void setChannels(Map<String, Channel> channels) {
-    this.channels = channels;
-  }
-
   @Override
   public String toString() {
     return new ToStringBuilder(this)

@@ -803,7 +803,9 @@ public class ServiceHelper {
       AdminService adminService = getAdminService();
       for (String channel : adminService.getChannels().keySet()) {
         V1ServicePort port =
-            new V1ServicePort().nodePort(adminService.getChannels().get(channel).getNodePort());
+            new V1ServicePort()
+                .port(adminService.getChannels().get(channel))
+                .name(channel);
         ports.add(port);
       }
       spec.setPorts(ports);
@@ -818,7 +820,7 @@ public class ServiceHelper {
       for (String label : adminService.getLabels().keySet()) {
         metadata.putLabelsItem(label, adminService.getLabels().get(label));
       }
-      for (String annotation : adminService.getChannels().keySet()) {
+      for (String annotation : adminService.getAnnotations().keySet()) {
         metadata.putAnnotationsItem(annotation, adminService.getAnnotations().get(annotation));
       }
       return metadata;
