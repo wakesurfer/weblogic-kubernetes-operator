@@ -786,7 +786,7 @@ public class ServiceHelperTest {
   private void configAdminService() {
     configureAdminServer()
             .configureAdminService()
-            .addChannel("default", TEST_PORT);
+            .addChannel("default", new Channel(TEST_PORT));
   }
 
   private void initializeAdminServiceFromRecord(V1Service service) {

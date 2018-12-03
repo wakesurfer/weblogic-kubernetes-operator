@@ -18,7 +18,7 @@ public class AdminService {
   private Map<String, String> annotations = new HashMap<>();
   /** */
   @SerializedName("channels")
-  private Map<String, Integer> channels = new HashMap<>();
+  private Map<String, Channel> channels = new HashMap<>();
 
   public AdminService addLabel(String name, String value) {
     labels.put(name,value);
@@ -34,11 +34,11 @@ public class AdminService {
   public Map<String, String> getAnnotations() {
     return Collections.unmodifiableMap(annotations);
   }
-  public AdminService addChannel(String name, Integer port) {
+  public AdminService addChannel(String name, Channel port) {
     channels.put(name, port);
     return this;
   }
-  public Map<String, Integer> getChannels() {
+  public Map<String, Channel> getChannels() {
     return channels;
   }
   @Override

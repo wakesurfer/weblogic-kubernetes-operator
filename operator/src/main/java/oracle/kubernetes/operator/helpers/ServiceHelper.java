@@ -803,7 +803,7 @@ public class ServiceHelper {
       for (String channel : adminService.getChannels().keySet()) {
         V1ServicePort port =
             new V1ServicePort()
-                .port(adminService.getChannels().get(channel))
+                .port(adminService.getChannels().get(channel).getNodePort())
                 .name(channel);
         ports.add(port);
       }
